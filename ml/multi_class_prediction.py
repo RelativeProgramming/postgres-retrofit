@@ -24,8 +24,8 @@ VEC_TABLE2_TEMPL = '{vec_table2}'
 
 ITERATIONS = 10
 
-OUTPUT_NAME = 'apps_cat_classify_'
-OUTPUT_NAME_PLOT = 'apps_cat_classify_plot_'
+OUTPUT_NAME = 'food_cat_classify_'
+OUTPUT_NAME_PLOT = 'food_cat_classify_plot_'
 
 
 def output_result(result, filename):
@@ -220,7 +220,7 @@ def main(argc, argv):
     output_result(dict({label: {'mu': mu, 'std': std, 'scores': scores}}),
                   output_folder + OUTPUT_NAME + label + '.json')
     # plot output
-    plot_graph(scores, label, 'App Category Classification',
+    plot_graph(scores, label, 'Food Category Classification',
                output_folder + OUTPUT_NAME_PLOT + label + '.png')
     return mu, std, scores
 

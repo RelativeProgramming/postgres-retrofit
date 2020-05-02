@@ -1,4 +1,4 @@
-# RETRO: Relation Retrofitting For In-Database Machine Learning on Textual Data
+# RETRO: Relation Retrofitting For In-Database Machine Learning on Textual + Numerical Data
 RETRO is a framework that provides tools to automatically extract text values from a PostgreSQL database, represent those text values by a continuous vector representation using a word embedding model.
 In order to incorporate semantic knowledge from the database into the representation, it extracts additional relational information from the database and uses this knowledge to refine the embeddings by a relational retrofitting method.
 The resulting embeddings can then be used to perform machine learning tasks.
@@ -34,11 +34,11 @@ After the script is passed through, you can find the results in the table `retro
 
 ## Example ML Task
 
-As one example of a machine learning task, you can run a category imputation task on a dataset of [Google Play Store Apps](https://www.kaggle.com/lava18/google-play-store-apps).
+As one example of a machine learning task, you can run a category imputation task on a dataset of [Open Food Facts](https://www.kaggle.com/openfoodfacts/world-food-facts).
 
 ### Create the Database
 
-The script provided in [google-play-dataset-import](https://github.com/guenthermi/google-play-dataset-import) can be used to create a database containing the data from the App Store dataset.
+The script provided in [open-food-facts-dataset-import](https://github.com/guenthermi/open-food-facts-postgresql-import) can be used to create a database containing the data from the Open Food Facts dataset.
 In order to set up the database, clone the repository and follow the instruction in the README file.
 
 ### Configuration
@@ -62,7 +62,7 @@ After executing the retrofitting, the classification can be started.
 The category imputation task can be performed with `ml/multi_class_prediction.py`:
 
 ```
-python3 ml/multi_class_prediction.py ml/db_config.json ml/classify_app_categories_config.json
+python3 ml/multi_class_prediction.py ml/db_config.json ml/classify_food_categories_config.json
 ```
 
-After running and evaluating the classification, this should output a results file and a box-plot diagram in the output folder defined in `ml/classify_app_categories_config.json` (default: `output/`).
+After running and evaluating the classification, this should output a results file and a box-plot diagram in the output folder defined in `ml/classify_food_categories_config.json` (default: `output/`).

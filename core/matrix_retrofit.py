@@ -121,7 +121,6 @@ def create_M0(all_terms, present_vectors, dim, conf):
     term_list = []
     M0 = []
     presence_vector = []
-    m, s = utils.get_dist_params(present_vectors)
     for key in all_terms:
         for term in all_terms[key]:
             row_label = utils.get_label(key, term)
