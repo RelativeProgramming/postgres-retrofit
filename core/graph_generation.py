@@ -2,9 +2,9 @@
 
 import sys
 import networkx as nx
-import json
 from collections import defaultdict
 from itertools import combinations
+from enum import Enum
 
 import config
 import db_connection as db_con
@@ -35,11 +35,14 @@ def get_schema(con, cur):
                 schema[entry[0]]['fkeys'].append(f_rel)
     return schema
 
+
 def construct_relation_graph(schema, columns, blacklist):
     result = nx.MultiDiGraph()
     bl = [[y.split('.') for y in x.split('~')] for x in blacklist]
     for key in columns.keys():
-        result.add_node(key, columns=columns[key], pkey=schema[key]['pkey'])
+        result.add_node(key, columns=[x[0] for x in columns[key]],
+                        types=[x[1] for x in columns[key]],
+                        pkey=schema[key]['pkey'])
     for table_name in schema.keys():
         fkeys = schema[table_name]['fkeys']
         if (len(fkeys) > 1) and (table_name not in columns):
@@ -48,7 +51,7 @@ def construct_relation_graph(schema, columns, blacklist):
                 for key in fkeys:
                     if key[1] in columns.keys():
                         relevant_fkeys.add(key)
-                for (key1, key2) in combinations(relevant_fkeys,2):
+                for (key1, key2) in combinations(relevant_fkeys, 2):
                     name = table_name
                     if len(fkeys) > 2:
                         name += ':' + key1[0] + '~' + key2[0]
@@ -68,20 +71,44 @@ def construct_relation_graph(schema, columns, blacklist):
 
 
 def get_all_db_columns(blacklists, con, cur):
+    """
+    Retrieves all non-unique/non-key columns, that contain text or number values
+
+    :return dict, which assigns each table_name a list with column name, column type pairs
+    """
+
     # string values
-    query = ("SELECT table_name, column_name FROM information_schema.columns "
-             + "WHERE table_schema = 'public' AND udt_name = 'varchar'")
-    cur.execute(query)
-    responses = cur.fetchall()
+    string_query = ("SELECT cols.table_name, cols.column_name "
+                    + "FROM information_schema.columns cols "
+                    + "LEFT JOIN information_schema.key_column_usage keys "
+                    + "ON cols.table_name = keys.table_name AND cols.column_name = keys.column_name "
+                    + "WHERE cols.table_schema = 'public' AND keys.column_name IS NULL AND cols.udt_name = 'varchar'")
+
+    # numeric values
+    numeric_query = ("SELECT cols.table_name, cols.column_name "
+                     + "FROM information_schema.columns cols "
+                     + "LEFT JOIN information_schema.key_column_usage keys "
+                     + "ON cols.table_name = keys.table_name AND cols.column_name = keys.column_name "
+                     + "WHERE cols.table_schema = 'public' AND keys.column_name IS NULL "
+                     + "AND cols.udt_name IN ('smallint', 'integer', 'bigint', 'int2', 'int4', 'int8', "
+                     + "'decimal', 'numeric', 'real', 'double precision', 'float4', 'float8')")
+
+    cur.execute(string_query)
+    string_responses = cur.fetchall()
+    cur.execute(numeric_query)
+    numeric_responses = cur.fetchall()
     names = defaultdict(list)
-    for (table, col) in responses:
+    for (table, col) in string_responses:
         if (not table in blacklists[0]) and (not (table + '.' + col) in blacklists[1]):
-            names[table].append(col)
+            names[table].append((col, "string"))
+    for (table, col) in numeric_responses:
+        if (not table in blacklists[0]) and (not (table + '.' + col) in blacklists[1]):
+            names[table].append((col, "number"))
+
     return names
 
 
 def main(argc, argv):
-
     # get database connection
     db_config = db_con.get_db_config(path=argv[2])
     con, cur = db_con.create_connection(db_config)

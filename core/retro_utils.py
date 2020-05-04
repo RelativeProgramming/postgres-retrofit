@@ -1,11 +1,8 @@
-import os
-import re
-import json
 import base64
-import numpy as np
-from collections import defaultdict
+import json
+import re
 
-import db_connection as db_con
+import numpy as np
 
 
 def parse_groups(group_filename, vectors_encoded=True):
@@ -144,12 +141,14 @@ def get_vectors_for_present_terms_from_group_file(data_columns, groups_info):
 
 
 def get_terms_from_vector_set(vec_table_name, con, cur):
+    print("Getting terms from vector table:")
     QUERY_TMPL = "SELECT word, vector, id FROM %s WHERE id >= %d AND id < %d"
     BATCH_SIZE = 500000
     term_dict = dict()
     min_id = 0
     max_id = BATCH_SIZE
     while True:
+        print("%s to %s..." % (min_id, max_id))
         query = QUERY_TMPL % (vec_table_name, min_id, max_id)
         cur.execute(query)
         term_list = [x for x in cur.fetchall()]
@@ -172,3 +171,17 @@ def get_terms_from_vector_set(vec_table_name, con, cur):
         min_id = max_id
         max_id += BATCH_SIZE
     return term_dict
+
+
+def num_to_vec_one_hot(num, min_value, max_value):
+    """
+    Encodes a number to a 300-dimensional byte vector using byte-wise one-hot encoding
+
+    -> divides the range [min_value, max_value] in 300 equally spaced sub-ranges, that are used for encoding
+    """
+    vec = bytearray(300)
+    if max_value >= num >= min_value:
+        range_size = (max_value - min_value) / 300
+        index = int((num - min_value) // range_size)
+        vec[min(299, index)] = 0xFF
+    return vec

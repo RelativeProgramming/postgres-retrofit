@@ -11,8 +11,10 @@ def get_db_config(path=DB_CONFIG_PATH):
     f_db_config.close()
     return db_config
 
+
 def get_bytea(value):
     return psycopg2.Binary(value)
+
 
 def create_connection(db_config):
     con = None
