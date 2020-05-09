@@ -76,7 +76,7 @@ def get_terms(columns, con, cur):
         table_name, column_name = column.split(
             '.')  # TODO get this in an encoding save way
         # construct sql query
-        sql_query = "SELECT %s FROM %s" % (column_name, table_name)
+        sql_query = "SELECT %s::varchar FROM %s" % (column_name, table_name)
         cur.execute(sql_query)
         result[column] = [tokenize(x[0]) for x in cur.fetchall()]
         result[column] = list(set(result[column]))  # remove duplicates

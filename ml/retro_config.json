@@ -4,7 +4,7 @@
   "SCHEMA_GRAPH_PATH": "output/schema.gml",
   "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
   "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "plain_vecs"],
-  "COLUMN_BLACKLIST": ["categories.name", "genres.name"],
+  "COLUMN_BLACKLIST": ["categories.name"],
   "RELATION_BLACKLIST":  [],
   "OUTPUT_FOLDER": "output",
   "GROUPS_FILE_NAME": "output/groups.json",

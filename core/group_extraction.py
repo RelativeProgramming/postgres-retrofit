@@ -104,7 +104,6 @@ def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strate
                         if term is None:
                             continue
 
-
                         splits = [x.replace('_', '') for x in term.split('_')]
                         i = 1
                         j = 0
@@ -166,31 +165,32 @@ def get_row_groups(graph, we_table_name, con, cur):
             continue
         columns_types = zip(columns, types)
         for (col1, type1), (col2, type2) in combinations(columns_types, 2):
-            if type1 == "number" or type2 == "number":  # TODO: Implement row relations with number values
-                continue
-            vec_dict = dict()
             rel_name = '%s.%s~%s.%s' % (node, col1, node, col2)
             col1_query_symbol = ('%s.%s' % (node, col1)) if type1 == "number" \
                 else utils.tokenize_sql_variable('%s.%s' % (node, col1))
             col2_query_symbol = ('%s.%s' % (node, col2)) if type2 == "number" \
                 else utils.tokenize_sql_variable('%s.%s' % (node, col2))
-            we_query = (
-                               "SELECT %s::varchar, %s::varchar, v1.vector, v2.vector, v1.id, v2.id "
-                               + "FROM %s INNER JOIN %s AS v1 ON %s::varchar = v1.word "
-                               + "INNER JOIN %s AS v2 ON %s::varchar = v2.word") % (
-                           col1_query_symbol,
-                           col2_query_symbol,
-                           node,
-                           we_table_name,
-                           col1_query_symbol,
-                           we_table_name,
-                           col2_query_symbol)  # returns (term1, term2, vector1, vector2)
-            complete_query = "SELECT %s, %s FROM %s" % (col1_query_symbol, col2_query_symbol, node)
-            cur.execute(we_query)
-            for (term1, term2, vec1_bytes, vec2_bytes, vec1_id, vec2_id) in cur.fetchall():
-                key = '%s~%s' % (term1, term2)
-                vec_dict[key] = dict()
-                vec_dict[key]['ids'] = [int(vec1_id), int(vec2_id)]
+            vec_dict = dict()
+
+            if not (type1 == "number" or type2 == "number"):
+                we_query = (
+                                   "SELECT %s::varchar, %s::varchar, v1.vector, v2.vector, v1.id, v2.id "
+                                   + "FROM %s INNER JOIN %s AS v1 ON %s::varchar = v1.word "
+                                   + "INNER JOIN %s AS v2 ON %s::varchar = v2.word") % (
+                               col1_query_symbol,
+                               col2_query_symbol,
+                               node,
+                               we_table_name,
+                               col1_query_symbol,
+                               we_table_name,
+                               col2_query_symbol)  # returns (term1, term2, vector1, vector2)
+                cur.execute(we_query)
+                for (term1, term2, vec1_bytes, vec2_bytes, vec1_id, vec2_id) in cur.fetchall():
+                    key = '%s~%s' % (term1, term2)
+                    vec_dict[key] = dict()
+                    vec_dict[key]['ids'] = [int(vec1_id), int(vec2_id)]
+
+            complete_query = "SELECT %s::varchar, %s::varchar FROM %s" % (col1_query_symbol, col2_query_symbol, node)
             new_group = get_group(rel_name, 'relational',
                                   vec_dict, query=complete_query)
             if rel_name in result:
@@ -226,11 +226,8 @@ def get_relation_groups(graph, we_table_name, con, cur):
         for (col1, type1) in zip(column_names1, types1):
             col1_query_symbol = ('%s.%s' % (table1, col1)) if type1 == "number" \
                 else utils.tokenize_sql_variable('%s.%s' % (table1, col1))
-            if type1 == "number": # TODO: Implement relations with number values
-                continue
+
             for (col2, type2) in zip(column_names2, types2):
-                if type2 == "number":  # =========== See above ============
-                    continue
                 print('Process %s.%s~%s.%s ...' % (node1, col1, node2, col2))
                 col2_query_symbol = ('%s.%s' % (table2, col2)) if type2 == "number" \
                     else utils.tokenize_sql_variable('%s.%s' % (table2, col2))
@@ -242,32 +239,30 @@ def get_relation_groups(graph, we_table_name, con, cur):
                 complete_query = ''
                 if attrs['name'] == '-':
                     we_query = (
-                                       "SELECT %s, %s, v1.vector, v2.vector, v1.id, v2.id "
+                                       "SELECT %s::varchar, %s::varchar, v1.vector, v2.vector, v1.id, v2.id "
                                        + "FROM %s INNER JOIN %s ON %s.%s = %s.%s "
-                                       + "INNER JOIN %s AS v1 ON %s = v1.word "
-                                       + "INNER JOIN %s AS v2 ON %s = v2.word") % (
+                                       + "INNER JOIN %s AS v1 ON %s::varchar = v1.word "
+                                       + "INNER JOIN %s AS v2 ON %s::varchar = v2.word") % (
                                    col1_query_symbol,
                                    col2_query_symbol,
                                    table1, table2, table1, key_col1, table2, key_col2,
                                    we_table_name, col1_query_symbol,
                                    we_table_name, col2_query_symbol)  # returns (term1, term2, vector1, vector2)
                     # construct complete query for reconstruction
-                    complete_query = ("SELECT %s, %s " +
-                                      "FROM %s INNER JOIN %s ON %s.%s = %s.%s "
-                                      ) % (col1_query_symbol,
-                                           col2_query_symbol,
-                                           table1, table2, table1, key_col1,
-                                           table2, key_col2)
+                    complete_query = "SELECT %s::varchar, %s::varchar FROM %s INNER JOIN %s ON %s.%s = %s.%s " \
+                                     % (col1_query_symbol,
+                                        col2_query_symbol,
+                                        table1, table2, table1, key_col1,
+                                        table2, key_col2)
                 else:
                     pkey_col1 = graph.nodes[node1]['pkey']
                     pkey_col2 = graph.nodes[node2]['pkey']
                     rel_tab_name = attrs['name']
-                    we_query = (
-                                       "SELECT %s, %s, v1.vector, v2.vector, v1.id, v2.id "
-                                       + "FROM %s INNER JOIN %s ON %s.%s = %s.%s "
-                                       + "INNER JOIN %s ON %s.%s = %s.%s "
-                                       + "INNER JOIN %s AS v1 ON %s = v1.word "
-                                       + "INNER JOIN %s AS v2 ON %s = v2.word") % (
+                    we_query = ("SELECT %s::varchar, %s::varchar, v1.vector, v2.vector, v1.id, v2.id "
+                                + "FROM %s INNER JOIN %s ON %s.%s = %s.%s "
+                                + "INNER JOIN %s ON %s.%s = %s.%s "
+                                + "INNER JOIN %s AS v1 ON %s::varchar = v1.word "
+                                + "INNER JOIN %s AS v2 ON %s::varchar = v2.word") % (
                                    col1_query_symbol,
                                    col2_query_symbol,
                                    table1, rel_tab_name, table1, pkey_col1,
@@ -275,7 +270,7 @@ def get_relation_groups(graph, we_table_name, con, cur):
                                    we_table_name, col1_query_symbol,
                                    we_table_name, col2_query_symbol)  # returns (term1, term2, vector1, vector2)
                     # construct complete query for reconstruction
-                    complete_query = ("SELECT %s, %s FROM %s " +
+                    complete_query = ("SELECT %s::varchar, %s::varchar FROM %s " +
                                       "INNER JOIN %s ON %s.%s = %s.%s "
                                       + "INNER JOIN %s ON %s.%s = %s.%s") % (
                                          col1_query_symbol,
@@ -284,12 +279,14 @@ def get_relation_groups(graph, we_table_name, con, cur):
                                          rel_tab_name, key_col1, table2,
                                          table2, pkey_col2, rel_tab_name,
                                          key_col2)
-                cur.execute(we_query)
-                for (term1, term2, vec1_bytes, vec2_bytes, vec1_id,
-                     vec2_id) in cur.fetchall():
-                    key = '%s~%s' % (term1, term2)
-                    vec_dict[key] = dict()
-                    vec_dict[key]['ids'] = [int(vec1_id), int(vec2_id)]
+                if not (type1 == "number" or type2 == "number"):
+                    cur.execute(we_query)
+                    for (term1, term2, vec1_bytes, vec2_bytes, vec1_id,
+                         vec2_id) in cur.fetchall():
+                        key = '%s~%s' % (term1, term2)
+                        vec_dict[key] = dict()
+                        vec_dict[key]['ids'] = [int(vec1_id), int(vec2_id)]
+
                 new_group = get_group(
                     attrs['name'], 'relational', vec_dict, query=complete_query)
                 if rel_name in result:
