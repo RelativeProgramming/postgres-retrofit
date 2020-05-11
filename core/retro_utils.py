@@ -4,6 +4,8 @@ import re
 
 import numpy as np
 
+number_embeddings = dict()
+
 
 def parse_groups(group_filename, vectors_encoded=True):
     f = open(group_filename)
@@ -105,12 +107,12 @@ def get_dist_params(vectors):
             if max_inst > 100:
                 break
     m_value /= count
-    s_value = np.mean((np.array(values) - m_value)**2)
+    s_value = np.mean((np.array(values) - m_value) ** 2)
     return m_value, s_value
 
 
 def execute_threads_from_pool(thread_pool, verbose=False):
-    while(len(thread_pool) > 0):
+    while (len(thread_pool) > 0):
         try:
             next = thread_pool.pop()
             if verbose:
@@ -173,15 +175,97 @@ def get_terms_from_vector_set(vec_table_name, con, cur):
     return term_dict
 
 
-def num_to_vec_one_hot(num, min_value, max_value):
+def text_to_vec(term, vec_bytes, terms, tokenization_strategy):
+    """
+    Encodes a term to a 300-dimensional byte vector using the word embeddings given in "terms"
+
+    :return: a boolean that indicates, if the vector was inferred and
+        the vector itself in the form vector.tobytes()
+    """
+    if vec_bytes is not None:
+        return False, vec_bytes
+    else:
+        if term is None:
+            return True, None
+
+        splits = [x.replace('_', '') for x in term.split('_')]
+        i = 1
+        j = 0
+        current = [terms, None, -1]
+        vector = None
+        last_match = (0, None, -1)
+        count = 0
+        while (i <= len(splits)) or (type(last_match[1]) != type(None)):
+            subword = '_'.join(splits[j:i])
+            if subword in current[0]:
+                current = current[0][subword]
+                if current[1] is not None:
+                    last_match = (i, np.fromstring(
+                        bytes(current[1]), dtype='float32'), current[2])
+            else:
+                if type(last_match[1]) != type(None):
+                    if type(vector) != type(None):
+                        if tokenization_strategy == 'log10':
+                            vector += last_match[1] * \
+                                      np.log10(last_match[2])
+                            count += np.log10(last_match[2])
+                        else:  # 'simple' or different
+                            vector += last_match[1]
+                            count += 1
+                    else:
+                        if tokenization_strategy == 'log10':
+                            vector = last_match[1] * \
+                                     np.log10(last_match[2])
+                            count += np.log10(last_match[2])
+                        else:  # 'simple' or different
+                            vector = last_match[1]
+                            count += 1
+                    j = last_match[0]
+                    i = j
+                    last_match = (0, None, -1)
+                else:
+                    j += 1
+                    i = j
+                current = [terms, None, -1]
+            i += 1
+        if type(vector) != type(None):
+            vector /= count
+            return True, vector.tobytes()
+        else:
+            return True, None
+
+
+def num_to_vec_one_hot(num, min_value, max_value, column_vec):
     """
     Encodes a number to a 300-dimensional byte vector using byte-wise one-hot encoding
 
     -> divides the range [min_value, max_value] in 300 equally spaced sub-ranges, that are used for encoding
     """
-    vec = bytearray(300)
+    vec = np.zeros(300, dtype='float32')
     if max_value >= num >= min_value:
         range_size = (max_value - min_value) / 300
         index = int((num - min_value) // range_size)
-        vec[min(299, index)] = 0xFF
-    return vec
+        vec[min(299, index)] = 1.0
+    if column_vec is not None:
+        cv = np.frombuffer(column_vec, dtype='float32')
+        vec += cv
+        vec /= 2
+    return vec.tobytes()
+
+
+def initialize_numeric_word_embeddings(cur, we_table_name):
+    """
+    Traverses all word embeddings that represent numbers and saves them to number_embeddings.
+
+    This function should be called when using the we-regression numeric tokenization strategy
+    """
+    if len(number_embeddings.keys()) == 0:
+        print('Initializing numeric word embeddings')
+        query = ('SELECT word::varchar, vector FROM %s ' +
+                 'WHERE word ~ \'^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$\'') % we_table_name
+        cur.execute(query)
+        count = 0
+        for word, vector in cur.fetchall():
+            print(word);
+            count += 1
+        print("Count: %s" % count)

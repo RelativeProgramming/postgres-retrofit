@@ -11,6 +11,7 @@
   "ITERATIONS": 10,
   "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
   "TOKENIZATION": "simple",
+  "NUMERIC_TOKENIZATION": "one-hot",
   "ALPHA": 1.0,
   "BETA": 0.0,
   "GAMMA": 3.0,

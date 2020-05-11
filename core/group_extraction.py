@@ -45,9 +45,12 @@ def get_group(name, group_type, vector_dict, extended=None, query='', export_typ
     return result
 
 
-def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strategy):
+def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strategy, numeric_tokenization_strategy):
     print("Column relation extraction started:")
     result = dict()
+    # initialize tokenization algorithms
+    initialize_numeric_tokenization(cur, we_table_name, numeric_tokenization_strategy)
+
     # construct query
     for node in graph.nodes:
         columns_attr = graph.nodes[node]['columns']
@@ -61,30 +64,8 @@ def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strate
 
             # Process numeric values
             if column_type == 'number':
-                min_value = 0
-                max_value = 0
-                min_query = "SELECT min(%s) FROM %s" % \
-                            ('%s.%s' % (node, column_name), node)
-                cur.execute(min_query)
-                min_value = cur.fetchall()[0][0]
-                max_query = "SELECT max(%s) FROM %s" % \
-                            ('%s.%s' % (node, column_name), node)
-                cur.execute(max_query)
-                max_value = cur.fetchall()[0][0]
-
-                query = "SELECT %s::varchar FROM %s" % \
-                        ('%s.%s' % (node, column_name), node)
-                cur.execute(query)
-                for res in cur.fetchall():
-                    term = res[0]
-                    if term is None:
-                        continue
-
-                    num = float(term)
-                    vec = utils.num_to_vec_one_hot(num, min_value, max_value)
-                    vec_dict_inferred[term] = dict()
-                    vec_dict_inferred[term]['vector'] = base64.encodebytes(
-                        vec).decode('ascii')
+                get_numeric_column_groups(cur, node, column_name, vec_dict_inferred, we_table_name, terms,
+                                          tokenization_strategy, numeric_tokenization_strategy)
 
             else:  # Process string values
                 query = "SELECT %s, we.vector, we.id FROM %s LEFT OUTER JOIN %s AS we ON %s = we.word" % (
@@ -95,64 +76,59 @@ def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strate
                 term_vecs = cur.fetchall()
 
                 for (term, vec_bytes, vec_id) in term_vecs:
-                    if vec_bytes is not None and column_type != "number":
-                        vec_dict_fit[term] = dict()
-                        vec_dict_fit[term]['vector'] = base64.encodebytes(
-                            vec_bytes).decode('ascii')
-                        vec_dict_fit[term]['id'] = int(vec_id)
-                    else:
-                        if term is None:
+                    inferred, vector = utils.text_to_vec(term, vec_bytes, terms, tokenization_strategy)
+                    if inferred:
+                        if vector is None:
                             continue
+                        vec_dict_inferred[term] = dict()
+                        vec_dict_inferred[term]['vector'] = base64.encodebytes(vector).decode('ascii')
+                    else:
+                        vec_dict_fit[term] = dict()
+                        vec_dict_fit[term]['vector'] = base64.encodebytes(vector).decode('ascii')
+                        vec_dict_fit[term]['id'] = int(vec_id)
 
-                        splits = [x.replace('_', '') for x in term.split('_')]
-                        i = 1
-                        j = 0
-                        current = [terms, None, -1]
-                        vector = None
-                        last_match = (0, None, -1)
-                        count = 0
-                        while (i <= len(splits)) or (type(last_match[1]) != type(None)):
-                            subword = '_'.join(splits[j:i])
-                            if subword in current[0]:
-                                current = current[0][subword]
-                                if current[1] is not None:
-                                    last_match = (i, np.fromstring(
-                                        bytes(current[1]), dtype='float32'), current[2])
-                            else:
-                                if type(last_match[1]) != type(None):
-                                    if type(vector) != type(None):
-                                        if tokenization_strategy == 'log10':
-                                            vector += last_match[1] * \
-                                                      np.log10(last_match[2])
-                                            count += np.log10(last_match[2])
-                                        else:  # 'simple' or different
-                                            vector += last_match[1]
-                                            count += 1
-                                    else:
-                                        if tokenization_strategy == 'log10':
-                                            vector = last_match[1] * \
-                                                     np.log10(last_match[2])
-                                            count += np.log10(last_match[2])
-                                        else:  # 'simple' or different
-                                            vector = last_match[1]
-                                            count += 1
-                                    j = last_match[0]
-                                    i = j
-                                    last_match = (0, None, -1)
-                                else:
-                                    j += 1
-                                    i = j
-                                current = [terms, None, -1]
-                            i += 1
-                        if type(vector) != type(None):
-                            vector /= count
-                            vec_dict_inferred[term] = dict()
-                            vec_dict_inferred[term]['vector'] = base64.encodebytes(
-                                vector.tobytes()).decode('ascii')
             result['%s.%s' % (node, column_name)] = [get_group(
                 '%s.%s' % (node, column_name), 'categorial', vec_dict_fit, extended=vec_dict_inferred)]
             # here a clustering approach could be done
     return result
+
+
+def initialize_numeric_tokenization(cur, we_table_name, tokenization_strategy):
+    if tokenization_strategy == 'we-regression':
+        utils.initialize_numeric_word_embeddings(cur, we_table_name)
+
+
+def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_name, terms,
+                              tokenization_strategy, numeric_tokenization_strategy):
+    if numeric_tokenization_strategy == 'one-hot':
+        min_value = 0
+        max_value = 0
+        min_query = "SELECT min(%s) FROM %s" % \
+                    ('%s.%s' % (table_name, column_name), table_name)
+        cur.execute(min_query)
+        min_value = cur.fetchall()[0][0]
+        max_query = "SELECT max(%s) FROM %s" % \
+                    ('%s.%s' % (table_name, column_name), table_name)
+        cur.execute(max_query)
+        max_value = cur.fetchall()[0][0]
+
+        column_name_vector = utils.text_to_vec(column_name, None, terms, tokenization_strategy)[1]
+
+        query = "SELECT %s::varchar FROM %s" % \
+                ('%s.%s' % (table_name, column_name), table_name)
+        cur.execute(query)
+        for res in cur.fetchall():
+            term = res[0]
+            if term is None:
+                continue
+
+            num = float(term)
+            vec = utils.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
+            vec_dict[term] = dict()
+            vec_dict[term]['vector'] = base64.encodebytes(
+                vec).decode('ascii')
+    if numeric_tokenization_strategy == 'we-regression':
+        pass  # TODO: Implement
 
 
 def get_row_groups(graph, we_table_name, con, cur):
@@ -332,7 +308,7 @@ def main(argc, argv):
 
     # get groups of values occuring in the same column
     groups = update_groups(groups, get_column_groups(
-        graph, we_table_name, terms, con, cur, conf['TOKENIZATION']))
+        graph, we_table_name, terms, con, cur, conf['TOKENIZATION'], conf['NUMERIC_TOKENIZATION']))
 
     # get all relations between text values in two columns in the same table
     groups = update_groups(groups, get_row_groups(
