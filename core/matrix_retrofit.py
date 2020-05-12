@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 
 import sys
-import json
 import numpy as np
-import copy
 from scipy.sparse import csr_matrix
 from scipy.sparse import lil_matrix
 from sklearn import preprocessing
@@ -11,26 +9,33 @@ from os import linesep
 from threading import Thread
 from threading import Lock
 import time
+import multiprocessing
 
 import config
 import db_connection as db_con
 import retro_utils as utils
 
-NUM_THREADS = 2
+NUM_THREADS = max(2, multiprocessing.cpu_count()-2)
 MIN_GROUP_SIZE = 2
 
 
-def get_adjacency_vector(size, group_name, index_lookup, con, cur):
+def get_adjacency_vector(size, group_name, index_lookup, con, cur, data_type):
     # get group elements (elements of column)
     print('get adjacency vector for group:', group_name)
     table_name, column_name = utils.get_column_data_from_label(
         group_name, 'column')
     # construct query
-    query = "SELECT %s FROM %s" % (column_name, table_name)
+    query = "SELECT %s::varchar FROM %s" % (column_name, table_name)
     # retrieve all elements from the column
     cur.execute(query)
-    group_elements = [group_name + '#' +
-                      utils.tokenize(x[0]) for x in cur.fetchall()]
+    group_elements = []
+    for x in cur.fetchall():
+        if data_type == 'number':
+            if x[0] is None:
+                continue
+            group_elements.append(group_name + '#' + x[0])
+        else:
+            group_elements.append(group_name + '#' + utils.tokenize(x[0]))
     # construct vector
     vector = np.zeros(size)
     for element in group_elements:
@@ -92,7 +97,7 @@ def create_adjacency_matrices(term_list, groups, con,
                 matrix_key += suffix
             if group['type'] == 'categorial':
                 A_cat[matrix_key] = get_adjacency_vector(
-                    size, key, index_lookup, con, cur)
+                    size, key, index_lookup, con, cur, group['data_type'])
                 c += A_cat[matrix_key]
             if group['type'] == 'relational':
                 if len(group['elements'].keys()) < MIN_GROUP_SIZE:

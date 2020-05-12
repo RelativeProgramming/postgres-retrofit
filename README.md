@@ -8,7 +8,7 @@ For more details about the algorithm, take a look at the [paper](https://arxiv.o
 ## Setup
 
 In order to connect to a PostgreSQL database, you have to configure the database connection in the `config/db_config.json`.
-In order to run RETRO you might need to install some python packages (e.g. numpy, psycopg2, networkx, scipy, sklearn).
+In order to run RETRO you might need to install some python packages (e.g. numpy, psycopg2, networkx, scipy, sklearn, word2number).
 
 ### Import Word Embedding Model
 RETRO is independent of the word embedding model you want to use for the text values.

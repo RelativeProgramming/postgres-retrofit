@@ -19,7 +19,7 @@ def get_graph(path, graph_type='gml'):
     return g
 
 
-def get_group(name, group_type, vector_dict, extended=None, query='', export_type='full'):
+def get_group(name, group_type, vector_dict, extended=None, query='', export_type='full', data_type='string'):
     elems = []
     if group_type == 'categorial':
         if export_type == 'full':
@@ -35,7 +35,8 @@ def get_group(name, group_type, vector_dict, extended=None, query='', export_typ
         'name': name,
         'type': group_type,
         'elements': elems,
-        'query': query
+        'query': query,
+        'data_type': data_type  # 'string' or 'number'
     }
     if extended != None:
         if export_type == 'full':
@@ -88,7 +89,8 @@ def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strate
                         vec_dict_fit[term]['id'] = int(vec_id)
 
             result['%s.%s' % (node, column_name)] = [get_group(
-                '%s.%s' % (node, column_name), 'categorial', vec_dict_fit, extended=vec_dict_inferred)]
+                '%s.%s' % (node, column_name), 'categorial', vec_dict_fit, extended=vec_dict_inferred,
+                data_type=column_type)]
             # here a clustering approach could be done
     return result
 
@@ -100,6 +102,8 @@ def initialize_numeric_tokenization(cur, we_table_name, tokenization_strategy):
 
 def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_name, terms,
                               tokenization_strategy, numeric_tokenization_strategy):
+    element_query = "SELECT %s::varchar FROM %s" % \
+                    ('%s.%s' % (table_name, column_name), table_name)
     if numeric_tokenization_strategy == 'one-hot':
         min_value = 0
         max_value = 0
@@ -114,9 +118,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
 
         column_name_vector = utils.text_to_vec(column_name, None, terms, tokenization_strategy)[1]
 
-        query = "SELECT %s::varchar FROM %s" % \
-                ('%s.%s' % (table_name, column_name), table_name)
-        cur.execute(query)
+        cur.execute(element_query)
         for res in cur.fetchall():
             term = res[0]
             if term is None:
@@ -125,10 +127,27 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
             num = float(term)
             vec = utils.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
             vec_dict[term] = dict()
-            vec_dict[term]['vector'] = base64.encodebytes(
-                vec).decode('ascii')
+            vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
     if numeric_tokenization_strategy == 'we-regression':
-        pass  # TODO: Implement
+        cur.execute(element_query)
+        for res in cur.fetchall():
+            term = res[0]
+            if term is None:
+                continue
+
+            num = float(term)
+            vec = utils.num_to_vec_we_regression(num)
+            vec_dict[term] = dict()
+            vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
+    if numeric_tokenization_strategy == 'random':
+        cur.execute(element_query)
+        for res in cur.fetchall():
+            term = res[0]
+            if term is None:
+                continue
+            vec = utils.generate_random_vec()
+            vec_dict[term] = dict()
+            vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
 
 
 def get_row_groups(graph, we_table_name, con, cur):

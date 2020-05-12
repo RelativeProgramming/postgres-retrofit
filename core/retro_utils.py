@@ -1,10 +1,14 @@
 import base64
 import json
 import re
+from word2number import w2n
+from bisect import bisect_left
 
 import numpy as np
 
+
 number_embeddings = dict()
+embedded_numbers = []
 
 
 def parse_groups(group_filename, vectors_encoded=True):
@@ -34,7 +38,7 @@ def get_data_columns_from_group_data(groups):
     result = set()
     for key in groups:
         if groups[key][0]['type'] == 'categorial':
-            result.add(key)
+            result.add((key, groups[key][0]['data_type']))
     return list(result)
 
 
@@ -74,13 +78,16 @@ def tokenize(term):
 
 def get_terms(columns, con, cur):
     result = dict()
-    for column in columns:
+    for column, data_type in columns:
         table_name, column_name = column.split(
             '.')  # TODO get this in an encoding save way
         # construct sql query
         sql_query = "SELECT %s::varchar FROM %s" % (column_name, table_name)
         cur.execute(sql_query)
-        result[column] = [tokenize(x[0]) for x in cur.fetchall()]
+        if data_type == 'number':
+            result[column] = [x[0] for x in cur.fetchall()]
+        else:
+            result[column] = [tokenize(x[0]) for x in cur.fetchall()]
         result[column] = list(set(result[column]))  # remove duplicates
     return result
 
@@ -127,7 +134,7 @@ def execute_threads_from_pool(thread_pool, verbose=False):
 def get_vectors_for_present_terms_from_group_file(data_columns, groups_info):
     result_present = dict()
     dim = 0
-    for column in data_columns:
+    for column, data_type in data_columns:
         group = groups_info[column][0]['elements']
         group_extended = groups_info[column][0]['inferred_elements']
         result_present[column] = dict()
@@ -253,6 +260,26 @@ def num_to_vec_one_hot(num, min_value, max_value, column_vec):
     return vec.tobytes()
 
 
+def num_to_vec_we_regression(num):
+    if number_embeddings.get(num) is not None:
+        return number_embeddings[num]
+    else:
+        closest_numbers = get_neighbors(embedded_numbers, num)
+        result = np.zeros(300, dtype='float32')
+        for i in closest_numbers:
+            vec = np.frombuffer(number_embeddings[i], dtype='float32')
+            result += vec
+        result /= len(closest_numbers)
+        return result.tobytes()
+
+
+def generate_random_vec():
+    vec = np.zeros(300, dtype='float32')
+    for i in range(300):
+        vec[i] = (np.random.random()*2)-1.0
+    return vec.tobytes()
+
+
 def initialize_numeric_word_embeddings(cur, we_table_name):
     """
     Traverses all word embeddings that represent numbers and saves them to number_embeddings.
@@ -261,11 +288,46 @@ def initialize_numeric_word_embeddings(cur, we_table_name):
     """
     if len(number_embeddings.keys()) == 0:
         print('Initializing numeric word embeddings')
-        query = ('SELECT word::varchar, vector FROM %s ' +
-                 'WHERE word ~ \'^[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?$\'') % we_table_name
+        w2n.print_function = None
+        query = 'SELECT word::varchar, vector FROM %s' % we_table_name
         cur.execute(query)
+        result = dict()
         count = 0
         for word, vector in cur.fetchall():
-            print(word);
-            count += 1
-        print("Count: %s" % count)
+            try:
+                number = w2n.word_to_num(word)
+                if number is not None:
+                    if result.get(number) is None:
+                        result[number] = []
+                    result[number].append(vector)
+                    count += 1
+            except ValueError:
+                pass
+        print("Numeral word embeddings found: %s" % count)
+        for key in result.keys():
+            vectors = list(map(lambda x: np.frombuffer(x, dtype='float32'), result[key]))
+            final_vec = np.zeros(300, dtype='float32')
+            for vec in vectors:
+                final_vec += vec
+            final_vec /= len(vectors)
+            number_embeddings[key] = final_vec.tobytes()
+            embedded_numbers.append(key)
+        embedded_numbers.sort()
+
+
+def get_neighbors(sorted_list, value):
+    """
+    Returns the neighboring value(s) to value, that are contained in sorted_list.
+
+    If two numbers are equally close, return the smallest number.
+
+    Source: https://stackoverflow.com/questions/12141150/from-list-of-integers-get-number-closest-to-a-given-value
+    """
+    pos = bisect_left(sorted_list, value)
+    if pos == 0:
+        return [sorted_list[0]]
+    if pos == len(sorted_list):
+        return [sorted_list[-1]]
+    before = sorted_list[pos - 1]
+    after = sorted_list[pos]
+    return [before, after]
