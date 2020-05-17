@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import numpy as np
 import json
 import sys
 import networkx as nx
@@ -10,6 +9,7 @@ import base64
 import config
 import db_connection as db_con
 import retro_utils as utils
+import encoding_utils as encoder
 
 
 def get_graph(path, graph_type='gml'):
@@ -77,7 +77,7 @@ def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strate
                 term_vecs = cur.fetchall()
 
                 for (term, vec_bytes, vec_id) in term_vecs:
-                    inferred, vector = utils.text_to_vec(term, vec_bytes, terms, tokenization_strategy)
+                    inferred, vector = encoder.text_to_vec(term, vec_bytes, terms, tokenization_strategy)
                     if inferred:
                         if vector is None:
                             continue
@@ -97,14 +97,14 @@ def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strate
 
 def initialize_numeric_tokenization(cur, we_table_name, tokenization_strategy):
     if tokenization_strategy == 'we-regression':
-        utils.initialize_numeric_word_embeddings(cur, we_table_name)
+        encoder.initialize_numeric_word_embeddings(cur, we_table_name)
 
 
 def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_name, terms,
                               tokenization_strategy, numeric_tokenization_strategy):
     element_query = "SELECT %s::varchar FROM %s" % \
                     ('%s.%s' % (table_name, column_name), table_name)
-    if numeric_tokenization_strategy == 'one-hot':
+    if numeric_tokenization_strategy == 'one-hot' or numeric_tokenization_strategy == 'unary':
         min_value = 0
         max_value = 0
         min_query = "SELECT min(%s) FROM %s" % \
@@ -116,7 +116,8 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
         cur.execute(max_query)
         max_value = cur.fetchall()[0][0]
 
-        column_name_vector = utils.text_to_vec(column_name, None, terms, tokenization_strategy)[1]
+        if numeric_tokenization_strategy == 'one-hot':
+            column_name_vector = encoder.text_to_vec(column_name, None, terms, tokenization_strategy)[1]
 
         cur.execute(element_query)
         for res in cur.fetchall():
@@ -125,7 +126,10 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 continue
 
             num = float(term)
-            vec = utils.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
+            if numeric_tokenization_strategy == 'unary':
+                vec = encoder.num_to_vec_unary(num, min_value, max_value)
+            elif numeric_tokenization_strategy == 'one-hot':
+                vec = encoder.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
             vec_dict[term] = dict()
             vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
     if numeric_tokenization_strategy == 'we-regression':
@@ -136,7 +140,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 continue
 
             num = float(term)
-            vec = utils.num_to_vec_we_regression(num)
+            vec = encoder.num_to_vec_we_regression(num)
             vec_dict[term] = dict()
             vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
     if numeric_tokenization_strategy == 'random':
@@ -145,7 +149,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
             term = res[0]
             if term is None:
                 continue
-            vec = utils.generate_random_vec()
+            vec = encoder.generate_random_vec()
             vec_dict[term] = dict()
             vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
 
