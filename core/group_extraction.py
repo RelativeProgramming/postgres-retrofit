@@ -104,8 +104,9 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
     mode = tokenization_settings["NUMERIC_TOKENIZATION"]["MODE"]
     buckets = tokenization_settings["NUMERIC_TOKENIZATION"]["BUCKETS"]
     column_encoding = tokenization_settings["NUMERIC_TOKENIZATION"]["COLUMN_ENCODING"]
+    standard_deviation = column_encoding = tokenization_settings["NUMERIC_TOKENIZATION"]["STANDARD_DEVIATION"]
 
-    if not buckets and (mode == 'one-hot' or mode == 'unary'):
+    if not buckets and (mode == 'one-hot' or mode == 'one-hot-gaussian' or mode == 'unary'):
         min_value = 0
         max_value = 0
         min_query = "SELECT min(%s) FROM %s" % \
@@ -142,14 +143,21 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                     bucket_index = 299
                     break
             remaining_step -= 1
+
+            if vec_dict.get(term) is not None:  # don't calculate vector twice for the same term
+                continue
+
             if mode == 'unary':
                 vec = encoder.bucket_to_vec_unary(bucket_index)
             elif mode == 'one-hot':
                 vec = encoder.bucket_to_vec_one_hot(bucket_index, column_name_vector)
+            elif mode == 'one-hot-gaussian':
+                vec = encoder.bucket_to_vec_one_hot_gaussian(bucket_index, standard_deviation)
+
             vec_dict[term] = dict()
             vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
-    else:
-        element_query = "SELECT %s::varchar FROM %s" % \
+    else:  # not buckets
+        element_query = "SELECT DISTINCT %s::varchar FROM %s" % \
                         ('%s.%s' % (table_name, column_name), table_name)
         cur.execute(element_query)
         for res in cur.fetchall():
@@ -162,6 +170,8 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 vec = encoder.num_to_vec_unary(num, min_value, max_value)
             elif mode == 'one-hot':
                 vec = encoder.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
+            elif mode == 'one-hot-gaussian':
+                vec = encoder.num_to_vec_one_hot_gaussian(num, min_value, max_value, standard_deviation)
             elif mode == 'we-regression':
                 vec = encoder.num_to_vec_we_regression(num)
             elif mode == 'random':

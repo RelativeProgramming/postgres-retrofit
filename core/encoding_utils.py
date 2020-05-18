@@ -73,12 +73,12 @@ def num_to_vec_one_hot(num, min_value, max_value, column_vec):
 
     :return: vector in the form vector.tobytes()
     """
-    vec = np.zeros(300, dtype='float32')
     if max_value >= num >= min_value:
         range_size = (max_value - min_value) / 300
         index = int((num - min_value) // range_size)
-        vec = bucket_to_vec_one_hot(min(299, index), column_vec)
-    return vec.tobytes()
+        return bucket_to_vec_one_hot(min(299, index), column_vec)
+    else:
+        return np.zeros(300, dtype='float32')
 
 
 def bucket_to_vec_one_hot(bucket, column_vec):
@@ -94,6 +94,37 @@ def bucket_to_vec_one_hot(bucket, column_vec):
             cv = np.frombuffer(column_vec, dtype='float32')
             vec += cv
             vec /= 2
+        return vec.tobytes()
+    else:
+        return np.zeros(300, dtype='float32').tobytes()
+
+
+def num_to_vec_one_hot_gaussian(num, min_value, max_value, sd):
+    """
+    Encodes a number to a 300-dimensional vector using a one-hot encoding with a gaussian filter
+
+    -> divides the range [min_value, max_value] in 300 equally spaced sub-ranges, that are used for encoding
+
+    :return: vector in the form vector.tobytes()
+    """
+    if max_value >= num >= min_value:
+        range_size = (max_value - min_value) / 300
+        index = int((num - min_value) // range_size)
+        return bucket_to_vec_one_hot_gaussian(min(299, index), sd)
+    else:
+        return np.zeros(300, dtype='float32')
+
+
+def bucket_to_vec_one_hot_gaussian(bucket, sd):
+    """
+    Encodes a bucket index to a 300-dimensional vector using one-hot encoding with a gaussian filter
+
+    :return: vector in the form vector.tobytes()
+    """
+    if bucket_valid(bucket):
+        vec = np.zeros(300, dtype='float32')
+        for x in range(300):
+            vec[x] = gaussian(x*0.5, sd, bucket*0.5)  # the factor 0.2 streches the function
         return vec.tobytes()
     else:
         return np.zeros(300, dtype='float32').tobytes()
@@ -219,3 +250,7 @@ def bucket_valid(bucket):
     checks if given bucket index is inside the valid range [0, 300)
     """
     return 0 <= bucket < 300
+
+
+def gaussian(x, sd, mean):
+    return (1/(sd*np.sqrt(2*np.pi)))*np.power(np.e, -0.5*np.square((x-mean)/sd))
