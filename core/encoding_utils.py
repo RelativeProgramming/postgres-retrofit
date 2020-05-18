@@ -6,13 +6,14 @@ number_embeddings = dict()
 embedded_numbers = []
 
 
-def text_to_vec(term, vec_bytes, terms, tokenization_strategy):
+def text_to_vec(term, vec_bytes, terms, tokenization_settings):
     """
     Encodes a term to a 300-dimensional vector using the word embeddings given in "terms"
 
     :return: a boolean that indicates, if the vector was inferred and
         the vector itself in the form vector.tobytes()
     """
+    tokenization_strategy = tokenization_settings['TEXT_TOKENIZATION']
     if vec_bytes is not None:
         return False, vec_bytes
     else:
@@ -126,8 +127,9 @@ def bucket_to_vec_unary(bucket):
     """
     if bucket_valid(bucket):
         vec = np.zeros(300, dtype='float32')
-        vec[0:300] -= 1.0
-        vec[bucket] = 1.0
+        if bucket < 299:
+            vec[bucket+1:300] -= 1.0
+        vec[0:bucket+1] = 1.0
         return vec.tobytes()
     else:
         return np.zeros(300, dtype='float32').tobytes()

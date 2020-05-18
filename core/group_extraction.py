@@ -46,11 +46,11 @@ def get_group(name, group_type, vector_dict, extended=None, query='', export_typ
     return result
 
 
-def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strategy, numeric_tokenization_strategy):
+def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_settings):
     print("Column relation extraction started:")
     result = dict()
     # initialize tokenization algorithms
-    initialize_numeric_tokenization(cur, we_table_name, numeric_tokenization_strategy)
+    initialize_numeric_tokenization(cur, we_table_name, tokenization_settings)
 
     # construct query
     for node in graph.nodes:
@@ -66,7 +66,7 @@ def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strate
             # Process numeric values
             if column_type == 'number':
                 get_numeric_column_groups(cur, node, column_name, vec_dict_inferred, we_table_name, terms,
-                                          tokenization_strategy, numeric_tokenization_strategy)
+                                          tokenization_settings)
 
             else:  # Process string values
                 query = "SELECT %s, we.vector, we.id FROM %s LEFT OUTER JOIN %s AS we ON %s = we.word" % (
@@ -77,7 +77,7 @@ def get_column_groups(graph, we_table_name, terms, con, cur, tokenization_strate
                 term_vecs = cur.fetchall()
 
                 for (term, vec_bytes, vec_id) in term_vecs:
-                    inferred, vector = encoder.text_to_vec(term, vec_bytes, terms, tokenization_strategy)
+                    inferred, vector = encoder.text_to_vec(term, vec_bytes, terms, tokenization_settings)
                     if inferred:
                         if vector is None:
                             continue
@@ -100,11 +100,14 @@ def initialize_numeric_tokenization(cur, we_table_name, tokenization_strategy):
         encoder.initialize_numeric_word_embeddings(cur, we_table_name)
 
 
-def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_name, terms,
-                              tokenization_strategy, numeric_tokenization_strategy):
+def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_name, terms, tokenization_settings):
     element_query = "SELECT %s::varchar FROM %s" % \
                     ('%s.%s' % (table_name, column_name), table_name)
-    if numeric_tokenization_strategy == 'one-hot' or numeric_tokenization_strategy == 'unary':
+    mode = tokenization_settings["NUMERIC_TOKENIZATION"]["MODE"]
+    buckets = tokenization_settings["NUMERIC_TOKENIZATION"]["BUCKETS"]
+    column_encoding = tokenization_settings["NUMERIC_TOKENIZATION"]["COLUMN_ENCODING"]
+
+    if mode == 'one-hot' or mode == 'unary':
         min_value = 0
         max_value = 0
         min_query = "SELECT min(%s) FROM %s" % \
@@ -116,8 +119,8 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
         cur.execute(max_query)
         max_value = cur.fetchall()[0][0]
 
-        if numeric_tokenization_strategy == 'one-hot':
-            column_name_vector = encoder.text_to_vec(column_name, None, terms, tokenization_strategy)[1]
+        if mode == 'one-hot' and column_encoding:
+            column_name_vector = encoder.text_to_vec(column_name, None, terms, tokenization_settings)[1]
 
         cur.execute(element_query)
         for res in cur.fetchall():
@@ -126,13 +129,13 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 continue
 
             num = float(term)
-            if numeric_tokenization_strategy == 'unary':
+            if mode == 'unary':
                 vec = encoder.num_to_vec_unary(num, min_value, max_value)
-            elif numeric_tokenization_strategy == 'one-hot':
+            elif mode == 'one-hot':
                 vec = encoder.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
             vec_dict[term] = dict()
             vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
-    if numeric_tokenization_strategy == 'we-regression':
+    if mode == 'we-regression':
         cur.execute(element_query)
         for res in cur.fetchall():
             term = res[0]
@@ -143,7 +146,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
             vec = encoder.num_to_vec_we_regression(num)
             vec_dict[term] = dict()
             vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
-    if numeric_tokenization_strategy == 'random':
+    if mode == 'random':
         cur.execute(element_query)
         for res in cur.fetchall():
             term = res[0]
@@ -331,7 +334,7 @@ def main(argc, argv):
 
     # get groups of values occuring in the same column
     groups = update_groups(groups, get_column_groups(
-        graph, we_table_name, terms, con, cur, conf['TOKENIZATION'], conf['NUMERIC_TOKENIZATION']))
+        graph, we_table_name, terms, con, cur, conf['TOKENIZATION_SETTINGS']))
 
     # get all relations between text values in two columns in the same table
     groups = update_groups(groups, get_row_groups(

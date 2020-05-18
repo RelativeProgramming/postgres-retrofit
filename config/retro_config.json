@@ -10,8 +10,14 @@
   "GROUPS_FILE_NAME": "output/groups.json",
   "ITERATIONS": 10,
   "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
-  "TOKENIZATION": "simple",
-  "NUMERIC_TOKENIZATION": "unary",
+  "TOKENIZATION_SETTINGS": {
+    "TEXT_TOKENIZATION": "simple",
+    "NUMERIC_TOKENIZATION": {
+      "MODE": "unary",
+      "BUCKETS": false,
+      "COLUMN_ENCODING": false
+    }
+  },
   "ALPHA": 1.0,
   "BETA": 0.0,
   "GAMMA": 3.0,
