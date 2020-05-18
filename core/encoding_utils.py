@@ -77,12 +77,26 @@ def num_to_vec_one_hot(num, min_value, max_value, column_vec):
     if max_value >= num >= min_value:
         range_size = (max_value - min_value) / 300
         index = int((num - min_value) // range_size)
-        vec[min(299, index)] = 1.0
-    if column_vec is not None:
-        cv = np.frombuffer(column_vec, dtype='float32')
-        vec += cv
-        vec /= 2
+        vec = bucket_to_vec_one_hot(min(299, index), column_vec)
     return vec.tobytes()
+
+
+def bucket_to_vec_one_hot(bucket, column_vec):
+    """
+    Encodes a bucket index to a 300-dimensional vector using one-hot encoding with the values 0.0 and 1.0.
+
+    :return: vector in the form vector.tobytes()
+    """
+    if bucket_valid(bucket):
+        vec = np.zeros(300, dtype='float32')
+        vec[bucket] = 1.0
+        if column_vec is not None:
+            cv = np.frombuffer(column_vec, dtype='float32')
+            vec += cv
+            vec /= 2
+        return vec.tobytes()
+    else:
+        return np.zeros(300, dtype='float32').tobytes()
 
 
 def num_to_vec_we_regression(num):

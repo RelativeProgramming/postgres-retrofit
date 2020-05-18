@@ -101,13 +101,11 @@ def initialize_numeric_tokenization(cur, we_table_name, tokenization_strategy):
 
 
 def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_name, terms, tokenization_settings):
-    element_query = "SELECT %s::varchar FROM %s" % \
-                    ('%s.%s' % (table_name, column_name), table_name)
     mode = tokenization_settings["NUMERIC_TOKENIZATION"]["MODE"]
     buckets = tokenization_settings["NUMERIC_TOKENIZATION"]["BUCKETS"]
     column_encoding = tokenization_settings["NUMERIC_TOKENIZATION"]["COLUMN_ENCODING"]
 
-    if mode == 'one-hot' or mode == 'unary':
+    if not buckets and (mode == 'one-hot' or mode == 'unary'):
         min_value = 0
         max_value = 0
         min_query = "SELECT min(%s) FROM %s" % \
@@ -119,9 +117,40 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
         cur.execute(max_query)
         max_value = cur.fetchall()[0][0]
 
-        if mode == 'one-hot' and column_encoding:
-            column_name_vector = encoder.text_to_vec(column_name, None, terms, tokenization_settings)[1]
+    column_name_vector = None
+    if mode == 'one-hot' and column_encoding:
+        column_name_vector = encoder.text_to_vec(column_name, None, terms, tokenization_settings)[1]
 
+    if buckets:
+        count_query = "SELECT COUNT(%s) FROM %s" % ('%s.%s' % (table_name, column_name), table_name)
+        cur.execute(count_query)
+        count = cur.fetchall()[0][0]
+        step_size = count / 300
+        bucket_index = 0
+        remaining_step = step_size
+        element_query = "SELECT  %s::varchar FROM %s ORDER BY %s" % \
+                        ('%s.%s' % (table_name, column_name), table_name, '%s.%s' % (table_name, column_name))
+        cur.execute(element_query)
+        for res in cur.fetchall():
+            term = res[0]
+            if term is None:
+                continue
+            while remaining_step < 1:
+                bucket_index += 1
+                remaining_step += step_size
+                if bucket_index >= 300:
+                    bucket_index = 299
+                    break
+            remaining_step -= 1
+            if mode == 'unary':
+                vec = encoder.bucket_to_vec_unary(bucket_index)
+            elif mode == 'one-hot':
+                vec = encoder.bucket_to_vec_one_hot(bucket_index, column_name_vector)
+            vec_dict[term] = dict()
+            vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
+    else:
+        element_query = "SELECT %s::varchar FROM %s" % \
+                        ('%s.%s' % (table_name, column_name), table_name)
         cur.execute(element_query)
         for res in cur.fetchall():
             term = res[0]
@@ -133,26 +162,10 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 vec = encoder.num_to_vec_unary(num, min_value, max_value)
             elif mode == 'one-hot':
                 vec = encoder.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
-            vec_dict[term] = dict()
-            vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
-    if mode == 'we-regression':
-        cur.execute(element_query)
-        for res in cur.fetchall():
-            term = res[0]
-            if term is None:
-                continue
-
-            num = float(term)
-            vec = encoder.num_to_vec_we_regression(num)
-            vec_dict[term] = dict()
-            vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
-    if mode == 'random':
-        cur.execute(element_query)
-        for res in cur.fetchall():
-            term = res[0]
-            if term is None:
-                continue
-            vec = encoder.generate_random_vec()
+            elif mode == 'we-regression':
+                vec = encoder.num_to_vec_we_regression(num)
+            elif mode == 'random':
+                vec = encoder.generate_random_vec()
             vec_dict[term] = dict()
             vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
 
