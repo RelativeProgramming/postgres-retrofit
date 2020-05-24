@@ -13,8 +13,8 @@
   "TOKENIZATION_SETTINGS": {
     "TEXT_TOKENIZATION": "simple",
     "NUMERIC_TOKENIZATION": {
-      "MODE": "one-hot-gaussian",
-      "BUCKETS": true,
+      "MODE": "unary",
+      "BUCKETS": false,
       "COLUMN_ENCODING": false,
       "STANDARD_DEVIATION": 1.0
     }

@@ -80,8 +80,7 @@ def insert_vectors(filename, con, cur, table_name, batch_size, normalized):
             vector = create_bytea_norm_array(splits[1:])
         else:
             vector = create_bytea_array(splits[1:])
-        if (len(splits[0]) > 0) and (vector !=
-                                     None) and (len(splits) == (d + 1)):
+        if (len(splits[0]) > 0) and vector is not None and (len(splits) == (d + 1)):
             values.append({"word": splits[0], "vector": vector})
         else:
             print('parsing problem with ' + line)

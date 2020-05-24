@@ -71,6 +71,8 @@ def num_to_vec_one_hot(num, min_value, max_value, column_vec):
 
     -> divides the range [min_value, max_value] in 300 equally spaced sub-ranges, that are used for encoding
 
+    If column_vec is not None, the centroid of the number and the column name will be calculated.
+
     :return: vector in the form vector.tobytes()
     """
     if max_value >= num >= min_value:
@@ -84,6 +86,8 @@ def num_to_vec_one_hot(num, min_value, max_value, column_vec):
 def bucket_to_vec_one_hot(bucket, column_vec):
     """
     Encodes a bucket index to a 300-dimensional vector using one-hot encoding with the values 0.0 and 1.0.
+
+    If column_vec is not None, the centroid of the number and the column name will be calculated.
 
     :return: vector in the form vector.tobytes()
     """
@@ -148,7 +152,7 @@ def num_to_vec_we_regression(num):
         return result.tobytes()
 
 
-def num_to_vec_unary(num, min_value, max_value):
+def num_to_vec_unary(num, min_value, max_value, column_vec):
     """
     Encodes a number to a 300-dimensional vector using unary encoding with the values -1.0 and 1.0.
 
@@ -159,12 +163,12 @@ def num_to_vec_unary(num, min_value, max_value):
     if max_value >= num >= min_value:
         range_size = (max_value - min_value) / 300
         index = int((num - min_value) // range_size)
-        return bucket_to_vec_unary(min(299, index))
+        return bucket_to_vec_unary(min(299, index), column_vec)
     else:
         return np.zeros(300, dtype='float32').tobytes()
 
 
-def bucket_to_vec_unary(bucket):
+def bucket_to_vec_unary(bucket, column_vec):
     """
     Encodes a bucket index to a 300-dimensional vector using unary encoding with the values -1.0 and 1.0.
 
@@ -175,6 +179,10 @@ def bucket_to_vec_unary(bucket):
         if bucket < 299:
             vec[bucket+1:300] -= 1.0
         vec[0:bucket+1] = 1.0
+        if column_vec is not None:
+            cv = np.frombuffer(column_vec, dtype='float32')
+            vec += cv
+            vec /= 2
         return vec.tobytes()
     else:
         return np.zeros(300, dtype='float32').tobytes()

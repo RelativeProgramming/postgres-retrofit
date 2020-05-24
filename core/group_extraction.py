@@ -119,7 +119,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
         max_value = cur.fetchall()[0][0]
 
     column_name_vector = None
-    if mode == 'one-hot' and column_encoding:
+    if column_encoding:
         column_name_vector = encoder.text_to_vec(column_name, None, terms, tokenization_settings)[1]
 
     if buckets:
@@ -148,7 +148,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 continue
 
             if mode == 'unary':
-                vec = encoder.bucket_to_vec_unary(bucket_index)
+                vec = encoder.bucket_to_vec_unary(bucket_index, column_name_vector)
             elif mode == 'one-hot':
                 vec = encoder.bucket_to_vec_one_hot(bucket_index, column_name_vector)
             elif mode == 'one-hot-gaussian':
@@ -167,7 +167,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
 
             num = float(term)
             if mode == 'unary':
-                vec = encoder.num_to_vec_unary(num, min_value, max_value)
+                vec = encoder.num_to_vec_unary(num, min_value, max_value, column_name_vector)
             elif mode == 'one-hot':
                 vec = encoder.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
             elif mode == 'one-hot-gaussian':
