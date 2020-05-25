@@ -16,7 +16,8 @@
       "MODE": "unary",
       "BUCKETS": false,
       "COLUMN_ENCODING": false,
-      "STANDARD_DEVIATION": 1.0
+      "STANDARD_DEVIATION": 1.0,
+      "NORMALIZATION": true
     }
   },
   "ALPHA": 1.0,

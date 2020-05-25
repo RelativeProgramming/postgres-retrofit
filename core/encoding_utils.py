@@ -4,6 +4,19 @@ from bisect import bisect_left
 
 number_embeddings = dict()
 embedded_numbers = []
+normalization = False
+
+
+def set_normalization(n):
+    global normalization
+    normalization = n
+
+
+def apply_normalization(vec: np.ndarray) -> np.ndarray:
+    if normalization:
+        return vec / np.linalg.norm(vec)
+    else:
+        return vec
 
 
 def text_to_vec(term, vec_bytes, terms, tokenization_settings):
@@ -98,7 +111,7 @@ def bucket_to_vec_one_hot(bucket, column_vec):
             cv = np.frombuffer(column_vec, dtype='float32')
             vec += cv
             vec /= 2
-        return vec.tobytes()
+        return apply_normalization(vec).tobytes()
     else:
         return np.zeros(300, dtype='float32').tobytes()
 
@@ -129,7 +142,7 @@ def bucket_to_vec_one_hot_gaussian(bucket, sd):
         vec = np.zeros(300, dtype='float32')
         for x in range(300):
             vec[x] = gaussian(x*0.5, sd, bucket*0.5)  # the factor 0.2 streches the function
-        return vec.tobytes()
+        return apply_normalization(vec).tobytes()
     else:
         return np.zeros(300, dtype='float32').tobytes()
 
@@ -149,7 +162,7 @@ def num_to_vec_we_regression(num):
             vec = np.frombuffer(number_embeddings[i], dtype='float32')
             result += vec
         result /= len(closest_numbers)
-        return result.tobytes()
+        return apply_normalization(result).tobytes()
 
 
 def num_to_vec_unary(num, min_value, max_value, column_vec):
@@ -183,7 +196,7 @@ def bucket_to_vec_unary(bucket, column_vec):
             cv = np.frombuffer(column_vec, dtype='float32')
             vec += cv
             vec /= 2
-        return vec.tobytes()
+        return apply_normalization(vec).tobytes()
     else:
         return np.zeros(300, dtype='float32').tobytes()
 
@@ -197,7 +210,7 @@ def generate_random_vec():
     vec = np.zeros(300, dtype='float32')
     for i in range(300):
         vec[i] = (np.random.random() * 2) - 1.0
-    return vec.tobytes()
+    return apply_normalization(vec).tobytes()
 
 
 def initialize_numeric_word_embeddings(cur, we_table_name):

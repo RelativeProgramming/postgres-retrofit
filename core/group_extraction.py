@@ -104,7 +104,9 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
     mode = tokenization_settings["NUMERIC_TOKENIZATION"]["MODE"]
     buckets = tokenization_settings["NUMERIC_TOKENIZATION"]["BUCKETS"]
     column_encoding = tokenization_settings["NUMERIC_TOKENIZATION"]["COLUMN_ENCODING"]
-    standard_deviation = column_encoding = tokenization_settings["NUMERIC_TOKENIZATION"]["STANDARD_DEVIATION"]
+    standard_deviation = tokenization_settings["NUMERIC_TOKENIZATION"]["STANDARD_DEVIATION"]
+    normalization = tokenization_settings["NUMERIC_TOKENIZATION"]["NORMALIZATION"]
+    encoder.set_normalization(normalization)
 
     if not buckets and (mode == 'one-hot' or mode == 'one-hot-gaussian' or mode == 'unary'):
         min_value = 0
