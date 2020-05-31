@@ -1,7 +1,7 @@
 {
   "table_names": ["retro_vecs"],
-  "query": "SELECT r.id, CASE WHEN p.sugars_100g > 50 THEN '>50g' ELSE '<=50g' END, r.vector FROM products AS p INNER JOIN {vec_table} AS r ON r.word = concat('products.product_name#', regexp_replace(p.product_name, '[\\.#~\\s\\xa0,\\(\\)/\\[\\]:]+', '_', 'g'))",
-  "train-size": 400,
+  "query": "SELECT r.id, trunc(p.sugars_100g::numeric)::varchar, r.vector FROM products AS p INNER JOIN {vec_table} AS r ON r.word = concat('products.sugars_100g#', p.sugars_100g)",
+  "train-size": 200,
   "test-size": 400,
   "output_folder": "output/"
 }

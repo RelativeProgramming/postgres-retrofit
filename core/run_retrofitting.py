@@ -33,6 +33,7 @@ def main(argc, argv):
         print('Add retrofitted vectors to database as defined in', conf_path,
               '...')
         vec2database(3, [argv[0], conf_path, argv[2]])
+    print("Finished retrofitting")
 
 
 if __name__ == "__main__":

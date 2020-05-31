@@ -70,9 +70,11 @@ def construct_relation_graph(schema, columns, blacklist):
     return result
 
 
-def get_all_db_columns(blacklists, con, cur):
+def get_all_db_columns(blacklists, text_tokenization, numeric_tokenization, con, cur):
     """
-    Retrieves all non-unique/non-key columns, that contain text or number values
+    Retrieves all non-unique/non-key columns, that contain text or numeric values
+
+    text_tokenization and numeric_tokenization can be used to disable the corresponding columns
 
     :return dict, which assigns each table_name a list with column name, column type pairs
     """
@@ -93,17 +95,20 @@ def get_all_db_columns(blacklists, con, cur):
                      + "AND cols.udt_name IN ('smallint', 'integer', 'bigint', 'int2', 'int4', 'int8', "
                      + "'decimal', 'numeric', 'real', 'double precision', 'float4', 'float8')")
 
-    cur.execute(string_query)
-    string_responses = cur.fetchall()
-    cur.execute(numeric_query)
-    numeric_responses = cur.fetchall()
     names = defaultdict(list)
-    for (table, col) in string_responses:
-        if (not table in blacklists[0]) and (not (table + '.' + col) in blacklists[1]):
-            names[table].append((col, "string"))
-    for (table, col) in numeric_responses:
-        if (not table in blacklists[0]) and (not (table + '.' + col) in blacklists[1]):
-            names[table].append((col, "number"))
+    if text_tokenization != "disabled":
+        cur.execute(string_query)
+        string_responses = cur.fetchall()
+        for (table, col) in string_responses:
+            if (not table in blacklists[0]) and (not (table + '.' + col) in blacklists[1]):
+                names[table].append((col, "string"))
+
+    if numeric_tokenization != "disabled":
+        cur.execute(numeric_query)
+        numeric_responses = cur.fetchall()
+        for (table, col) in numeric_responses:
+            if (not table in blacklists[0]) and (not (table + '.' + col) in blacklists[1]):
+                names[table].append((col, "number"))
 
     return names
 
@@ -118,7 +123,8 @@ def main(argc, argv):
 
     # read out data from database
     db_columns = get_all_db_columns(
-        (conf['TABLE_BLACKLIST'], conf['COLUMN_BLACKLIST']), con, cur)
+        (conf['TABLE_BLACKLIST'], conf['COLUMN_BLACKLIST']), conf['TOKENIZATION_SETTINGS']['TEXT_TOKENIZATION'],
+        conf['TOKENIZATION_SETTINGS']['NUMERIC_TOKENIZATION']['MODE'], con, cur)
 
     # construct graph from relational data
     schema = get_schema(con, cur)
