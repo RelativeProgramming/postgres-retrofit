@@ -1,22 +1,67 @@
 import numpy as np
+import random
 from word2number import w2n
 from bisect import bisect_left
 
 number_embeddings = dict()
 embedded_numbers = []
 normalization = False
+number_dims = 300
+buckets = True
+standard_deviation = 1.0
 
 
 def set_normalization(n):
+    """
+    Sets the normalization flag
+    """
     global normalization
-    normalization = n
+    if n is not None:
+        normalization = n
+    return normalization
 
 
 def apply_normalization(vec: np.ndarray) -> np.ndarray:
+    """
+    Normalizes the given vector, if the normalization flag is set
+    """
     if normalization:
         return vec / np.linalg.norm(vec)
     else:
         return vec
+
+
+def set_number_dims(dims):
+    """
+    Sets the number of dimensions used for encoding numeric values (max. 300)
+    """
+    global number_dims
+    if dims is not None:
+        if dims <= 0:
+            number_dims = 0
+        else:
+            number_dims = min(dims, 300)
+    return number_dims
+
+
+def set_buckets(b):
+    """
+    Sets the buckets flag
+    """
+    global buckets
+    if b is not None:
+        buckets = b
+    return buckets
+
+
+def set_standard_deviation(sd):
+    """
+    Sets the standard deviation used for gaussian encodings
+    """
+    global standard_deviation
+    if sd is not None:
+        standard_deviation = sd
+    return standard_deviation
 
 
 def text_to_vec(term, vec_bytes, terms, tokenization_settings):
@@ -82,23 +127,23 @@ def num_to_vec_one_hot(num, min_value, max_value, column_vec):
     """
     Encodes a number to a 300-dimensional vector using a one-hot encoding
 
-    -> divides the range [min_value, max_value] in 300 equally spaced sub-ranges, that are used for encoding
+    -> divides the range [min_value, max_value] in number_dims equally spaced sub-ranges, that are used for encoding
 
     If column_vec is not None, the centroid of the number and the column name will be calculated.
 
     :return: vector in the form vector.tobytes()
     """
     if max_value >= num >= min_value:
-        range_size = (max_value - min_value) / 300
+        range_size = (max_value - min_value) / number_dims
         index = int((num - min_value) // range_size)
-        return bucket_to_vec_one_hot(min(299, index), column_vec)
+        return bucket_to_vec_one_hot(min(number_dims-1, index), column_vec)
     else:
         return np.zeros(300, dtype='float32')
 
 
 def bucket_to_vec_one_hot(bucket, column_vec):
     """
-    Encodes a bucket index to a 300-dimensional vector using one-hot encoding with the values 0.0 and 1.0.
+    Encodes a bucket index to a 300-dimensional vector using one-hot encoding with the values -1.0 and 1.0.
 
     If column_vec is not None, the centroid of the number and the column name will be calculated.
 
@@ -106,6 +151,7 @@ def bucket_to_vec_one_hot(bucket, column_vec):
     """
     if bucket_valid(bucket):
         vec = np.zeros(300, dtype='float32')
+        vec[0:number_dims] = -1.0
         vec[bucket] = 1.0
         if column_vec is not None:
             cv = np.frombuffer(column_vec, dtype='float32')
@@ -116,23 +162,23 @@ def bucket_to_vec_one_hot(bucket, column_vec):
         return np.zeros(300, dtype='float32').tobytes()
 
 
-def num_to_vec_one_hot_gaussian(num, min_value, max_value, sd):
+def num_to_vec_one_hot_gaussian(num, min_value, max_value):
     """
     Encodes a number to a 300-dimensional vector using a one-hot encoding with a gaussian filter
 
-    -> divides the range [min_value, max_value] in 300 equally spaced sub-ranges, that are used for encoding
+    -> divides the range [min_value, max_value] in number_dims equally spaced sub-ranges, that are used for encoding
 
     :return: vector in the form vector.tobytes()
     """
     if max_value >= num >= min_value:
-        range_size = (max_value - min_value) / 300
+        range_size = (max_value - min_value) / number_dims
         index = int((num - min_value) // range_size)
-        return bucket_to_vec_one_hot_gaussian(min(299, index), sd)
+        return bucket_to_vec_one_hot_gaussian(min(number_dims-1, index))
     else:
         return np.zeros(300, dtype='float32')
 
 
-def bucket_to_vec_one_hot_gaussian(bucket, sd):
+def bucket_to_vec_one_hot_gaussian(bucket):
     """
     Encodes a bucket index to a 300-dimensional vector using one-hot encoding with a gaussian filter
 
@@ -140,8 +186,8 @@ def bucket_to_vec_one_hot_gaussian(bucket, sd):
     """
     if bucket_valid(bucket):
         vec = np.zeros(300, dtype='float32')
-        for x in range(300):
-            vec[x] = gaussian(x*0.5, sd, bucket*0.5)  # the factor 0.2 streches the function
+        for x in range(number_dims):
+            vec[x] = gaussian(x * 0.5, bucket * 0.5)  # the factor 0.5 streches the function
         return apply_normalization(vec).tobytes()
     else:
         return np.zeros(300, dtype='float32').tobytes()
@@ -169,14 +215,14 @@ def num_to_vec_unary(num, min_value, max_value, column_vec):
     """
     Encodes a number to a 300-dimensional vector using unary encoding with the values -1.0 and 1.0.
 
-    -> divides the range [min_value, max_value] in 300 equally spaced sub-ranges, that are used for encoding
+    -> divides the range [min_value, max_value] in number_dims equally spaced sub-ranges, that are used for encoding
 
     :return: vector in the form vector.tobytes()
     """
     if max_value >= num >= min_value:
-        range_size = (max_value - min_value) / 300
+        range_size = (max_value - min_value) / number_dims
         index = int((num - min_value) // range_size)
-        return bucket_to_vec_unary(min(299, index), column_vec)
+        return bucket_to_vec_unary(min(number_dims-1, index), column_vec)
     else:
         return np.zeros(300, dtype='float32').tobytes()
 
@@ -189,13 +235,120 @@ def bucket_to_vec_unary(bucket, column_vec):
     """
     if bucket_valid(bucket):
         vec = np.zeros(300, dtype='float32')
-        if bucket < 299:
-            vec[bucket+1:300] -= 1.0
-        vec[0:bucket+1] = 1.0
+        if bucket < number_dims-1:
+            vec[bucket + 1:number_dims] -= 1.0
+        vec[0:bucket + 1] = 1.0
         if column_vec is not None:
             cv = np.frombuffer(column_vec, dtype='float32')
             vec += cv
             vec /= 2
+        return apply_normalization(vec).tobytes()
+    else:
+        return np.zeros(300, dtype='float32').tobytes()
+
+
+def num_to_vec_unary_gaussian(num, min_value, max_value):
+    """
+    Encodes a number to a 300-dimensional vector using a unary encoding with a gaussian filter
+
+    -> divides the range [min_value, max_value] in number_dims equally spaced sub-ranges, that are used for encoding
+
+    :return: vector in the form vector.tobytes()
+    """
+    if max_value >= num >= min_value:
+        range_size = (max_value - min_value) / number_dims
+        index = int((num - min_value) // range_size)
+        return bucket_to_vec_unary_gaussian(min(number_dims-1, index))
+    else:
+        return np.zeros(300, dtype='float32')
+
+
+def bucket_to_vec_unary_gaussian(bucket):
+    """
+    Encodes a bucket index to a 300-dimensional vector using unary encoding with a gaussian filter
+
+    :return: vector in the form vector.tobytes()
+    """
+    if bucket_valid(bucket):
+        vec = np.zeros(300, dtype='float32')
+        vec[0: bucket+1] = 1.0
+        for x in range(bucket+1, number_dims):
+            vec[x] = gaussian(x * 0.5, bucket * 0.5)  # the factor 0.5 streches the function
+        return apply_normalization(vec).tobytes()
+    else:
+        return np.zeros(300, dtype='float32').tobytes()
+
+
+def num_to_vec_unary_column_partial(num, min_value, max_value, column_vec):
+    """
+    Encodes a number to a 300-dimensional vector using unary encoding with the values -1.0 and 1.0.
+
+    -> divides the range [min_value, max_value] in number_dims equally spaced sub-ranges, that are used for encoding
+
+    -> the 300 - number_dims last vector values are used to represent the column name word embedding
+
+    :return: vector in the form vector.tobytes()
+    """
+    if max_value >= num >= min_value:
+        range_size = (max_value - min_value) / number_dims
+        index = int((num - min_value) // range_size)
+        return bucket_to_vec_unary_column_partial(min(number_dims - 1, index), column_vec)
+    else:
+        return np.zeros(300, dtype='float32').tobytes()
+
+
+def bucket_to_vec_unary_column_partial(bucket, column_vec):
+    """
+    Encodes a bucket index to a 300-dimensional vector using unary encoding with the values -1.0 and 1.0.
+
+    -> the 300 - number_dims last vector values are used to represent the column name word embedding
+
+    :return: vector in the form vector.tobytes()
+    """
+    if bucket_valid(bucket):
+        vec = np.zeros(300, dtype='float32')
+        vec[0:bucket + 1] = 1.0
+        vec[bucket + 1:number_dims] = -1.0
+        cv = np.frombuffer(column_vec, dtype='float32')
+        for i in range(number_dims, 300):
+            vec[i] = column_vec[i]
+        return apply_normalization(vec).tobytes()
+    else:
+        return np.zeros(300, dtype='float32').tobytes()
+
+
+def num_to_vec_unary_random_dim(num, min_value, max_value, column_vec):
+    """
+    Encodes a number to a 300-dimensional vector using unary encoding with the values -1.0 and 1.0.
+
+    -> divides the range [min_value, max_value] in number_dims equally spaced sub-ranges, that are used for encoding
+
+    -> distributes the dimensions used for encoding randomly (using the column_vec as a seed)
+
+    :return: vector in the form vector.tobytes()
+    """
+    if max_value >= num >= min_value:
+        range_size = (max_value - min_value) / number_dims
+        index = int((num - min_value) // range_size)
+        return bucket_to_vec_unary_random_dim(min(number_dims - 1, index), column_vec)
+    else:
+        return np.zeros(300, dtype='float32').tobytes()
+
+
+def bucket_to_vec_unary_random_dim(bucket, column_vec):
+    """
+    Encodes a bucket index to a 300-dimensional vector using unary encoding with the values -1.0 and 1.0.
+
+    -> randomly distributes the dimensions used for encoding (using the column_vec as a seed)
+
+    :return: vector in the form vector.tobytes()
+    """
+    if bucket_valid(bucket):
+        vec = np.zeros(300, dtype='float32')
+        vec[0:bucket + 1] = 1.0
+        vec[bucket + 1:number_dims] = -1.0
+        random.seed(column_vec)
+        random.shuffle(vec.flat)
         return apply_normalization(vec).tobytes()
     else:
         return np.zeros(300, dtype='float32').tobytes()
@@ -268,10 +421,30 @@ def get_neighbors(sorted_list, value):
 
 def bucket_valid(bucket):
     """
-    checks if given bucket index is inside the valid range [0, 300)
+    checks if given bucket index is inside the valid range [0, number_dims)
     """
-    return 0 <= bucket < 300
+    return 0 <= bucket < number_dims
 
 
-def gaussian(x, sd, mean):
-    return (1/(sd*np.sqrt(2*np.pi)))*np.power(np.e, -0.5*np.square((x-mean)/sd))
+def needs_column_encoding(mode):
+    """
+    Returns True, if an encoding mode needs a column word embedding vector, otherwise False
+    """
+    return mode in ["one-hot-column-centroid",
+                    "unary-column-centroid",
+                    "unary-column-partial",
+                    "unary-random-dim"]
+
+
+def needs_min_max_values(mode, buckets):
+    """
+    Returns True, if an encoding mode needs minimum and maximum column values, otherwise False
+    """
+    return not buckets and mode in ['one-hot',
+                                    'one-hot-gaussian',
+                                    'unary']
+
+
+def gaussian(x, mean):
+    return (1 / (standard_deviation * np.sqrt(2 * np.pi))) * \
+           np.power(np.e, -0.5 * np.square((x - mean) / standard_deviation))

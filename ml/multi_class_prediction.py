@@ -92,7 +92,7 @@ def construct_data_list(query_result):
     value_count = 0
     count = 0
     for elem in query_result:  # id value vec [vec2]
-        if type(elem[1]) == type(None):
+        if elem[1] is None:
             continue
             count += 1
         if len(elem) == 3:  # one vectors

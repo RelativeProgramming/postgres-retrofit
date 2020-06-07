@@ -102,13 +102,13 @@ def initialize_numeric_tokenization(cur, we_table_name, tokenization_strategy):
 
 def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_name, terms, tokenization_settings):
     mode = tokenization_settings["NUMERIC_TOKENIZATION"]["MODE"]
-    buckets = tokenization_settings["NUMERIC_TOKENIZATION"]["BUCKETS"]
-    column_encoding = tokenization_settings["NUMERIC_TOKENIZATION"]["COLUMN_ENCODING"]
-    standard_deviation = tokenization_settings["NUMERIC_TOKENIZATION"]["STANDARD_DEVIATION"]
-    normalization = tokenization_settings["NUMERIC_TOKENIZATION"]["NORMALIZATION"]
-    encoder.set_normalization(normalization)
+    buckets = encoder.set_buckets(tokenization_settings["NUMERIC_TOKENIZATION"]["BUCKETS"])
+    normalization = encoder.set_normalization(tokenization_settings["NUMERIC_TOKENIZATION"]["NORMALIZATION"])
+    standard_deviation = encoder.set_standard_deviation(tokenization_settings["NUMERIC_TOKENIZATION"]["STANDARD_DEVIATION"])
+    number_dims = encoder.set_number_dims(tokenization_settings["NUMERIC_TOKENIZATION"]["NUMBER_DIMS"])
+    column_encoding = encoder.needs_column_encoding(mode)
 
-    if not buckets and (mode == 'one-hot' or mode == 'one-hot-gaussian' or mode == 'unary'):
+    if encoder.needs_min_max_values(mode, buckets):
         min_value = 0
         max_value = 0
         min_query = "SELECT min(%s) FROM %s" % \
@@ -120,7 +120,6 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
         cur.execute(max_query)
         max_value = cur.fetchall()[0][0]
 
-    column_name_vector = None
     if column_encoding:
         column_name_vector = encoder.text_to_vec(column_name, None, terms, tokenization_settings)[1]
 
@@ -130,6 +129,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
         count = cur.fetchall()[0][0]
         step_size = count / 300
         bucket_index = 0
+        last_term = None
         remaining_step = step_size
         element_query = "SELECT  %s::varchar FROM %s ORDER BY %s" % \
                         ('%s.%s' % (table_name, column_name), table_name, '%s.%s' % (table_name, column_name))
@@ -138,23 +138,33 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
             term = res[0]
             if term is None:
                 continue
-            while remaining_step < 1:
+            if last_term is None:
+                last_term = term
+
+            while remaining_step < 1 and last_term != term:
                 bucket_index += 1
                 remaining_step += step_size
                 if bucket_index >= 300:
                     bucket_index = 299
                     break
+            last_term = term
             remaining_step -= 1
 
             if vec_dict.get(term) is not None:  # don't calculate vector twice for the same term
                 continue
 
-            if mode == 'unary':
+            if mode == 'unary' or mode == 'unary-column-centroid':
                 vec = encoder.bucket_to_vec_unary(bucket_index, column_name_vector)
-            elif mode == 'one-hot':
+            elif mode == 'unary-gaussian':
+                vec = encoder.bucket_to_vec_unary_gaussian(bucket_index)
+            elif mode == 'unary-column-partial':
+                vec = encoder.bucket_to_vec_unary_column_partial(bucket_index, column_name_vector)
+            elif mode == 'unary-random-dim':
+                vec = encoder.bucket_to_vec_unary_random_dim(bucket_index, column_name_vector)
+            elif mode == 'one-hot' or mode == 'one-hot-column-centroid':
                 vec = encoder.bucket_to_vec_one_hot(bucket_index, column_name_vector)
             elif mode == 'one-hot-gaussian':
-                vec = encoder.bucket_to_vec_one_hot_gaussian(bucket_index, standard_deviation)
+                vec = encoder.bucket_to_vec_one_hot_gaussian(bucket_index)
 
             vec_dict[term] = dict()
             vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
@@ -170,10 +180,16 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
             num = float(term)
             if mode == 'unary':
                 vec = encoder.num_to_vec_unary(num, min_value, max_value, column_name_vector)
+            elif mode == 'unary-gaussian':
+                vec = encoder.num_to_vec_unary_gaussian(num, min_value, max_value)
+            elif mode == 'unary-column-partial':
+                vec = encoder.num_to_vec_unary_column_partial(num, min_value, max_value, column_name_vector)
+            elif mode == 'unary-random-dim':
+                vec = encoder.num_to_vec_unary_random_dim(num, min_value, max_value, column_name_vector)
             elif mode == 'one-hot':
                 vec = encoder.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
             elif mode == 'one-hot-gaussian':
-                vec = encoder.num_to_vec_one_hot_gaussian(num, min_value, max_value, standard_deviation)
+                vec = encoder.num_to_vec_one_hot_gaussian(num, min_value, max_value)
             elif mode == 'we-regression':
                 vec = encoder.num_to_vec_we_regression(num)
             elif mode == 'random':

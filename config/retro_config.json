@@ -8,14 +8,14 @@
   "RELATION_BLACKLIST":  [],
   "OUTPUT_FOLDER": "output",
   "GROUPS_FILE_NAME": "output/groups.json",
-  "ITERATIONS": 0,
+  "ITERATIONS": 10,
   "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
   "TOKENIZATION_SETTINGS": {
-    "TEXT_TOKENIZATION": "disabled",
+    "TEXT_TOKENIZATION": "simple",
     "NUMERIC_TOKENIZATION": {
-      "MODE": "one-hot",
+      "MODE": "unary-random-dim",
       "BUCKETS": true,
-      "COLUMN_ENCODING": false,
+      "NUMBER_DIMS": 200,
       "STANDARD_DEVIATION": 1.0,
       "NORMALIZATION": true
     }

@@ -43,8 +43,30 @@ In order to set up the database, clone the repository and follow the instruction
 
 ### Configuration
 
-The configuration files `ml/retro_config.json`, `ml/db_config.json` and `ml/db_config.json` have to be adapted to your database.
-By using the default configuration in `ml/retro_config.json` the category and genre property are ignored since those are the properties we want to predict with our classifier (often the genre property equals the category).
+The configuration files `config/db_config.json` and `ml/db_config.json` have to be adapted to your database.
+By using the default configuration in `config/retro_config.json` the category and genre property are ignored since those are the properties we want to predict with our classifier (often the genre property equals the category).
+
+Numeric Encodings in `config/retro_config.json`:
+
+| MODE                    | description                                                                                                               | used settings                                           |
+|-------------------------|---------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| disabled                | numeric values aren't encoded at all                                                                                      | -                                                       |
+| random                  | vector contains random numbers between -1.0 and 1.0                                                                       | -                                                       |
+| one-hot                 | one-hot encoding with -1 and 1                                                                                            | NORMALIZATION, BUCKETS, NUMBER_DIMS                     |
+| one-hot-gaussian        | one-hot encoded vector with  gaussian filter applied                                                                      | NORMALIZATION, BUCKETS, NUMBER_DIMS, STANDARD_DEVIATION |
+| one-hot-column-centroid | centroid between one-hot encoded vector and we-vector of the column name                                                  | NORMALIZATION, BUCKETS                                  |
+| we-regression           | uses word embeddings of neighboring numeric values to interpolate vector                                                  | NORMALIZATION                                           |
+| unary                   | unary encoding with -1 and 1                                                                                              | NORMALIZATION, BUCKETS, NUMBER_DIMS                     |
+| unary-gaussian          | unary encoded vector with gaussian  filter applied                                                                        | NORMALIZATION, BUCKETS, NUMBER_DIMS, STANDARD_DEVIATION |
+| unary-column-centroid   | centroid between unary encoded vector and we-vector of the column name                                                    | NORMALIZATION, BUCKETS                                  |
+| unary-column-partial    | the first NUMBER_DIMS dimensions are used for unary encoding values, the rest for we-vector values of the column name     | NORMALIZATION, BUCKETS, NUMBER_DIMS                     |
+| unary-random-dim        | same as unary-column-partial, but the used vector indexes are randomly distributed                                        | NORMALIZATION, BUCKETS, NUMBER_DIMS                     |
+
+Additional Settings:
+* NORMALIZATION (Boolean, default: True): Vectors get normalized to length 1
+* NUMBER_DIMS (Integer from 0 to 300, default: 300): Number of dimensions used for numeric encoding
+* BUCKETS (Boolean, default: True): If true, all values get evenly distributed over all NUMBER_DIMS buckets, otherwise the values are divided in 300 equally sized numeric ranges between the min and max of the column
+* STANDARD_DEVIATION (Float, default: 1.0): Represents the corresponding parameter of the gaussian function
 
 ### Retrofitting
 

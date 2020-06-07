@@ -1,6 +1,6 @@
 {
   "table_names": ["retro_vecs"],
-  "query": "SELECT r.id, trunc(p.sugars_100g::numeric)::varchar, r.vector FROM products AS p INNER JOIN {vec_table} AS r ON r.word = concat('products.sugars_100g#', p.sugars_100g)",
+  "query": "SELECT r.id, trunc(p.sugars_100g::numeric, -1)::varchar, r.vector FROM products AS p INNER JOIN {vec_table} AS r ON r.word = concat('products.sugars_100g#', p.sugars_100g)",
   "train-size": 200,
   "test-size": 400,
   "output_folder": "output/"
