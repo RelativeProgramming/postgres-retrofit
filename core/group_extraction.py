@@ -272,16 +272,11 @@ def get_relation_groups(graph, we_table_name, con, cur):
                 we_query = ''
                 complete_query = ''
                 if attrs['name'] == '-':
-                    we_query = (
-                                       "SELECT %s::varchar, %s::varchar, v1.vector, v2.vector, v1.id, v2.id "
-                                       + "FROM %s INNER JOIN %s ON %s.%s = %s.%s "
-                                       + "INNER JOIN %s AS v1 ON %s::varchar = v1.word "
-                                       + "INNER JOIN %s AS v2 ON %s::varchar = v2.word") % (
-                                   col1_query_symbol,
-                                   col2_query_symbol,
-                                   table1, table2, table1, key_col1, table2, key_col2,
-                                   we_table_name, col1_query_symbol,
-                                   we_table_name, col2_query_symbol)  # returns (term1, term2, vector1, vector2)
+                    we_query = ("SELECT %s::varchar, %s::varchar "
+                                + "FROM %s INNER JOIN %s ON %s.%s = %s.%s ") % (
+                               col1_query_symbol,
+                               col2_query_symbol,
+                               table1, table2, table1, key_col1, table2, key_col2)  # returns (term1, term2)
                     # construct complete query for reconstruction
                     complete_query = "SELECT %s::varchar, %s::varchar FROM %s INNER JOIN %s ON %s.%s = %s.%s " \
                                      % (col1_query_symbol,
@@ -292,7 +287,7 @@ def get_relation_groups(graph, we_table_name, con, cur):
                     pkey_col1 = graph.nodes[node1]['pkey']
                     pkey_col2 = graph.nodes[node2]['pkey']
                     rel_tab_name = attrs['name']
-                    we_query = ("SELECT %s::varchar, %s::varchar"
+                    we_query = ("SELECT %s::varchar, %s::varchar "
                                 + "FROM %s INNER JOIN %s ON %s.%s = %s.%s "
                                 + "INNER JOIN %s ON %s.%s = %s.%s ") % (
                                    col1_query_symbol, col2_query_symbol,
