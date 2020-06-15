@@ -209,33 +209,24 @@ def get_row_groups(graph, we_table_name, con, cur):
         columns_types = zip(columns, types)
         for (col1, type1), (col2, type2) in combinations(columns_types, 2):
             rel_name = '%s.%s~%s.%s' % (node, col1, node, col2)
+            print('Processing ', rel_name)
             col1_query_symbol = ('%s.%s' % (node, col1)) if type1 == "number" \
                 else utils.tokenize_sql_variable('%s.%s' % (node, col1))
             col2_query_symbol = ('%s.%s' % (node, col2)) if type2 == "number" \
                 else utils.tokenize_sql_variable('%s.%s' % (node, col2))
             vec_dict = dict()
-
-            if not (type1 == "number" or type2 == "number"):
-                we_query = (
-                                   "SELECT %s::varchar, %s::varchar, v1.vector, v2.vector, v1.id, v2.id "
-                                   + "FROM %s INNER JOIN %s AS v1 ON %s::varchar = v1.word "
-                                   + "INNER JOIN %s AS v2 ON %s::varchar = v2.word") % (
-                               col1_query_symbol,
-                               col2_query_symbol,
-                               node,
-                               we_table_name,
-                               col1_query_symbol,
-                               we_table_name,
-                               col2_query_symbol)  # returns (term1, term2, vector1, vector2)
-                cur.execute(we_query)
-                for (term1, term2, vec1_bytes, vec2_bytes, vec1_id, vec2_id) in cur.fetchall():
-                    key = '%s~%s' % (term1, term2)
-                    vec_dict[key] = dict()
-                    vec_dict[key]['ids'] = [int(vec1_id), int(vec2_id)]
+            we_query = ("SELECT %s::varchar, %s::varchar FROM %s") % (
+                           col1_query_symbol,
+                           col2_query_symbol,
+                           node)  # returns (term1, term2)
+            cur.execute(we_query)
+            for (term1, term2) in cur.fetchall():
+                key = '%s~%s' % (term1, term2)
+                vec_dict[key] = 1  # This is just there to mark the existence of the term pair
 
             complete_query = "SELECT %s::varchar, %s::varchar FROM %s" % (col1_query_symbol, col2_query_symbol, node)
             new_group = get_group(rel_name, 'relational',
-                                  vec_dict, query=complete_query)
+                                  vec_dict, query=complete_query, data_type=(type1, type2))
             if rel_name in result:
                 result[rel_name].append(new_group)
             else:
@@ -271,7 +262,7 @@ def get_relation_groups(graph, we_table_name, con, cur):
                 else utils.tokenize_sql_variable('%s.%s' % (table1, col1))
 
             for (col2, type2) in zip(column_names2, types2):
-                print('Process %s.%s~%s.%s ...' % (node1, col1, node2, col2))
+                print('Processing %s.%s~%s.%s ...' % (node1, col1, node2, col2))
                 col2_query_symbol = ('%s.%s' % (table2, col2)) if type2 == "number" \
                     else utils.tokenize_sql_variable('%s.%s' % (table2, col2))
                 # conect source with target
@@ -301,17 +292,12 @@ def get_relation_groups(graph, we_table_name, con, cur):
                     pkey_col1 = graph.nodes[node1]['pkey']
                     pkey_col2 = graph.nodes[node2]['pkey']
                     rel_tab_name = attrs['name']
-                    we_query = ("SELECT %s::varchar, %s::varchar, v1.vector, v2.vector, v1.id, v2.id "
+                    we_query = ("SELECT %s::varchar, %s::varchar"
                                 + "FROM %s INNER JOIN %s ON %s.%s = %s.%s "
-                                + "INNER JOIN %s ON %s.%s = %s.%s "
-                                + "INNER JOIN %s AS v1 ON %s::varchar = v1.word "
-                                + "INNER JOIN %s AS v2 ON %s::varchar = v2.word") % (
-                                   col1_query_symbol,
-                                   col2_query_symbol,
-                                   table1, rel_tab_name, table1, pkey_col1,
-                                   rel_tab_name, key_col1, table2, table2, pkey_col2, rel_tab_name, key_col2,
-                                   we_table_name, col1_query_symbol,
-                                   we_table_name, col2_query_symbol)  # returns (term1, term2, vector1, vector2)
+                                + "INNER JOIN %s ON %s.%s = %s.%s ") % (
+                                   col1_query_symbol, col2_query_symbol,
+                                   table1, rel_tab_name, table1, pkey_col1, rel_tab_name, key_col1,
+                                   table2, table2, pkey_col2, rel_tab_name, key_col2)  # returns (term1, term2)
                     # construct complete query for reconstruction
                     complete_query = ("SELECT %s::varchar, %s::varchar FROM %s " +
                                       "INNER JOIN %s ON %s.%s = %s.%s "
@@ -322,16 +308,15 @@ def get_relation_groups(graph, we_table_name, con, cur):
                                          rel_tab_name, key_col1, table2,
                                          table2, pkey_col2, rel_tab_name,
                                          key_col2)
-                if not (type1 == "number" or type2 == "number"):
+                # Exclude numeric pair relations, to preserve values
+                if not (type1 == "number" and type2 == "number"):
                     cur.execute(we_query)
-                    for (term1, term2, vec1_bytes, vec2_bytes, vec1_id,
-                         vec2_id) in cur.fetchall():
+                    for (term1, term2) in cur.fetchall():
                         key = '%s~%s' % (term1, term2)
-                        vec_dict[key] = dict()
-                        vec_dict[key]['ids'] = [int(vec1_id), int(vec2_id)]
+                        vec_dict[key] = 1
 
                 new_group = get_group(
-                    attrs['name'], 'relational', vec_dict, query=complete_query)
+                    attrs['name'], 'relational', vec_dict, query=complete_query, data_type=(type1, type2))
                 if rel_name in result:
                     result[rel_name].append(new_group)
                 else:

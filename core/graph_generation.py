@@ -46,7 +46,7 @@ def construct_relation_graph(schema, columns, blacklist):
     for table_name in schema.keys():
         fkeys = schema[table_name]['fkeys']
         if (len(fkeys) > 1) and (table_name not in columns):
-            if not table_name in blacklist:
+            if table_name not in blacklist:
                 relevant_fkeys = set()
                 for key in fkeys:
                     if key[1] in columns.keys():

@@ -44,9 +44,10 @@ def get_adjacency_vector(size, group_name, index_lookup, con, cur, data_type):
     return vector
 
 
-def fill_adjacency_matrix_relational(size, column_names, index_lookup, query,
+def fill_adjacency_matrix_relational(size, column_names, index_lookup, group,
                                      con, cur, v_P):
 
+    query = group['query']
     # get group elements
     table_name1, column_name1 = utils.get_column_data_from_label(
         column_names[0], 'column')
@@ -63,8 +64,10 @@ def fill_adjacency_matrix_relational(size, column_names, index_lookup, query,
     c_in = np.zeros(size)
 
     for (text_value1, text_value2) in group_elements:
-        text_value1 = utils.tokenize(text_value1)
-        text_value2 = utils.tokenize(text_value2)
+        if group['data_type'][0] == 'string':
+            text_value1 = utils.tokenize(text_value1)
+        if group['data_type'][1] == 'string':
+            text_value2 = utils.tokenize(text_value2)
         i = index_lookup[utils.get_label(column_names[0], text_value1)]
         j = index_lookup[utils.get_label(column_names[1], text_value2)]
         A[i, j] = 1
@@ -108,7 +111,7 @@ def create_adjacency_matrices(term_list, groups, con,
                 column2 = '%s.%s' % (c2_t, c2_c)
                 A_rel[matrix_key], c_inc = fill_adjacency_matrix_relational(
                     size, (column1,
-                           column2), index_lookup, group['query'], con,
+                           column2), index_lookup, group, con,
                     cur, v_P)
                 reverse_key = '%s.%s~%s.%s:%s' % (
                     c2_t, c2_c, c1_t, c1_c, group['name']) + suffix

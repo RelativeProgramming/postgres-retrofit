@@ -22,7 +22,7 @@ VEC_TABLE_TEMPL = '{vec_table}'
 VEC_TABLE1_TEMPL = '{vec_table1}'
 VEC_TABLE2_TEMPL = '{vec_table2}'
 
-ITERATIONS = 10
+ITERATIONS = 20
 
 OUTPUT_NAME = 'food_cat_classify_'
 OUTPUT_NAME_PLOT = 'food_cat_classify_plot_'
