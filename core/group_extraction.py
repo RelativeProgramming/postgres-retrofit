@@ -27,10 +27,7 @@ def get_group(name, group_type, vector_dict, extended=None, query='', export_typ
         else:
             elems = list(vector_dict.keys())
     else:
-        if export_type == 'full':
-            elems = vector_dict
-        else:
-            elems = list(vector_dict.keys())
+        elems = vector_dict  # vector_dict is just the count of the elements
     result = {
         'name': name,
         'type': group_type,
@@ -214,19 +211,13 @@ def get_row_groups(graph, we_table_name, con, cur):
                 else utils.tokenize_sql_variable('%s.%s' % (node, col1))
             col2_query_symbol = ('%s.%s' % (node, col2)) if type2 == "number" \
                 else utils.tokenize_sql_variable('%s.%s' % (node, col2))
-            vec_dict = dict()
-            we_query = ("SELECT %s::varchar, %s::varchar FROM %s") % (
-                           col1_query_symbol,
-                           col2_query_symbol,
-                           node)  # returns (term1, term2)
-            cur.execute(we_query)
-            for (term1, term2) in cur.fetchall():
-                key = '%s~%s' % (term1, term2)
-                vec_dict[key] = 1  # This is just there to mark the existence of the term pair
+            element_count = 0
+            count_query = "SELECT COUNT(*) FROM %s" % node  # returns element count
+            cur.execute(count_query)
+            element_count = cur.fetchall()[0][0]
 
             complete_query = "SELECT %s::varchar, %s::varchar FROM %s" % (col1_query_symbol, col2_query_symbol, node)
-            new_group = get_group(rel_name, 'relational',
-                                  vec_dict, query=complete_query, data_type=(type1, type2))
+            new_group = get_group(rel_name, 'relational', element_count, query=complete_query, data_type=(type1, type2))
             if rel_name in result:
                 result[rel_name].append(new_group)
             else:
@@ -267,16 +258,14 @@ def get_relation_groups(graph, we_table_name, con, cur):
                     else utils.tokenize_sql_variable('%s.%s' % (table2, col2))
                 # conect source with target
                 rel_name = ''
-                vec_dict = dict()
+                count = 0
                 rel_name = '%s.%s~%s.%s' % (node1, col1, node2, col2)
-                we_query = ''
+                count_query = ''
                 complete_query = ''
                 if attrs['name'] == '-':
-                    we_query = ("SELECT %s::varchar, %s::varchar "
+                    count_query = ("SELECT COUNT(*) "
                                 + "FROM %s INNER JOIN %s ON %s.%s = %s.%s ") % (
-                               col1_query_symbol,
-                               col2_query_symbol,
-                               table1, table2, table1, key_col1, table2, key_col2)  # returns (term1, term2)
+                               table1, table2, table1, key_col1, table2, key_col2)  # returns term pair count
                     # construct complete query for reconstruction
                     complete_query = "SELECT %s::varchar, %s::varchar FROM %s INNER JOIN %s ON %s.%s = %s.%s " \
                                      % (col1_query_symbol,
@@ -287,10 +276,9 @@ def get_relation_groups(graph, we_table_name, con, cur):
                     pkey_col1 = graph.nodes[node1]['pkey']
                     pkey_col2 = graph.nodes[node2]['pkey']
                     rel_tab_name = attrs['name']
-                    we_query = ("SELECT %s::varchar, %s::varchar "
+                    count_query = ("SELECT COUNT(*) "
                                 + "FROM %s INNER JOIN %s ON %s.%s = %s.%s "
                                 + "INNER JOIN %s ON %s.%s = %s.%s ") % (
-                                   col1_query_symbol, col2_query_symbol,
                                    table1, rel_tab_name, table1, pkey_col1, rel_tab_name, key_col1,
                                    table2, table2, pkey_col2, rel_tab_name, key_col2)  # returns (term1, term2)
                     # construct complete query for reconstruction
@@ -305,13 +293,11 @@ def get_relation_groups(graph, we_table_name, con, cur):
                                          key_col2)
                 # Exclude numeric pair relations, to preserve values
                 if not (type1 == "number" and type2 == "number"):
-                    cur.execute(we_query)
-                    for (term1, term2) in cur.fetchall():
-                        key = '%s~%s' % (term1, term2)
-                        vec_dict[key] = 1
+                    cur.execute(count_query)
+                    count = cur.fetchall()[0][0]
 
                 new_group = get_group(
-                    attrs['name'], 'relational', vec_dict, query=complete_query, data_type=(type1, type2))
+                    attrs['name'], 'relational', count, query=complete_query, data_type=(type1, type2))
                 if rel_name in result:
                     result[rel_name].append(new_group)
                 else:

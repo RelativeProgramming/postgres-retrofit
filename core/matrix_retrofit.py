@@ -91,9 +91,11 @@ def create_adjacency_matrices(term_list, groups, con,
     # relations of vectors were no word embeddings exist are missing in groups??
     for key in groups:
         for group in groups[key]:
+            element_count = len(group['elements']) + len(group['inferred_elements']) \
+                if group['type'] == 'categorial' else group['elements']
             print('Process group %s:%s ...' %
-                  (key, group['name']), '(size: %d)' % (len(group['elements'])))
-            matrix_key = ('%s:%s') % (key, group['name'])
+                  (key, group['name']), '(size: %d)' % element_count)
+            matrix_key = '%s:%s' % (key, group['name'])
             suffix = ''
             if matrix_key in A_rel:
                 suffix = str(len(groups[key]))
@@ -103,16 +105,14 @@ def create_adjacency_matrices(term_list, groups, con,
                     size, key, index_lookup, con, cur, group['data_type'])
                 c += A_cat[matrix_key]
             if group['type'] == 'relational':
-                if len(group['elements'].keys()) < MIN_GROUP_SIZE:
+                if group['elements'] < MIN_GROUP_SIZE:
                     continue  # group is too small
                 c1_t, c1_c, c2_t, c2_c = utils.get_column_data_from_label(
                     key, 'relation')
                 column1 = '%s.%s' % (c1_t, c1_c)
                 column2 = '%s.%s' % (c2_t, c2_c)
                 A_rel[matrix_key], c_inc = fill_adjacency_matrix_relational(
-                    size, (column1,
-                           column2), index_lookup, group, con,
-                    cur, v_P)
+                    size, (column1, column2), index_lookup, group, con, cur, v_P)
                 reverse_key = '%s.%s~%s.%s:%s' % (
                     c2_t, c2_c, c1_t, c1_c, group['name']) + suffix
                 A_rel[reverse_key] = A_rel[matrix_key].T

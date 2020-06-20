@@ -9,8 +9,8 @@ def parse_groups(group_filename, vectors_encoded=True):
     groups = json.load(f)
     for key in groups:
         for group in groups[key]:
-            for key in group['elements']:
-                if group['type'] == 'categorial':
+            if group['type'] == 'categorial':
+                for key in group['elements']:
                     if vectors_encoded:
                         group['elements'][key]['vector'] = np.fromstring(base64.decodestring(
                             bytes(group['elements'][key]['vector'], 'ascii')), dtype='float32')
