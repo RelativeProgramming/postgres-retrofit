@@ -80,7 +80,7 @@ def classify(train_data, test_data, output_size):
     # Load best model and evaluate
     model.load_weights(backup_model_name)
     score = model.evaluate(x_test, y_test)
-    res = model.predict(x_test)
+    incorrects = np.nonzero(model.predict(x_test).reshape((-1,)) != y_test)
     print('Score:', score[1])
     os.remove(backup_model_name)
     return score[1]
@@ -197,6 +197,9 @@ def main(argc, argv):
         config['query'], config['table_names'], VEC_TABLE_TEMPL, VEC_TABLE1_TEMPL, VEC_TABLE2_TEMPL)
     id_lookup, value_lookup, value_count, id_keylist = get_raw_data(
         query, con, cur)
+    cur.close()
+    con.close()
+    print("Loaded data from database")
     scores = []
     for i in range(ITERATIONS):
         data, value_lookup, output_size = get_data(

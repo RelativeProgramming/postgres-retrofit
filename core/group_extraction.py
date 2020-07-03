@@ -117,6 +117,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
         cur.execute(max_query)
         max_value = cur.fetchall()[0][0]
 
+    column_name_vector = None
     if column_encoding:
         column_name_vector = encoder.text_to_vec(column_name, None, terms, tokenization_settings)[1]
 
@@ -175,7 +176,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 continue
 
             num = float(term)
-            if mode == 'unary':
+            if mode == 'unary' or mode == 'unary-column-centroid':
                 vec = encoder.num_to_vec_unary(num, min_value, max_value, column_name_vector)
             elif mode == 'unary-gaussian':
                 vec = encoder.num_to_vec_unary_gaussian(num, min_value, max_value)
@@ -183,7 +184,7 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 vec = encoder.num_to_vec_unary_column_partial(num, min_value, max_value, column_name_vector)
             elif mode == 'unary-random-dim':
                 vec = encoder.num_to_vec_unary_random_dim(num, min_value, max_value, column_name_vector)
-            elif mode == 'one-hot':
+            elif mode == 'one-hot' or mode == 'one-hot-column-centroid':
                 vec = encoder.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
             elif mode == 'one-hot-gaussian':
                 vec = encoder.num_to_vec_one_hot_gaussian(num, min_value, max_value)

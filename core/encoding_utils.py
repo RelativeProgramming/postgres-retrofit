@@ -361,7 +361,7 @@ def generate_random_vec():
     :return: vector in the form vector.tobytes()
     """
     vec = np.zeros(300, dtype='float32')
-    for i in range(300):
+    for i in range(number_dims):
         vec[i] = (np.random.random() * 2) - 1.0
     return apply_normalization(vec).tobytes()
 

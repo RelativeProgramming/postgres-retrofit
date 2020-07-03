@@ -33,7 +33,12 @@ def main(argc, argv):
         print('Add retrofitted vectors to database as defined in', conf_path,
               '...')
         vec2database(3, [argv[0], conf_path, argv[2]])
-    print("Finished retrofitting")
+    print("Finished retrofitting for:")
+    print("TEXT MODE: ", conf['TOKENIZATION_SETTINGS']['TEXT_TOKENIZATION'])
+    print("NUMERIC MODE: ", conf['TOKENIZATION_SETTINGS']['NUMERIC_TOKENIZATION']['MODE'])
+    print("\t BUCKETS: ", conf['TOKENIZATION_SETTINGS']['NUMERIC_TOKENIZATION']['BUCKETS'])
+    print("\t NUMBER DIMS: ", conf['TOKENIZATION_SETTINGS']['NUMERIC_TOKENIZATION']['NUMBER_DIMS'])
+    print("DELTA: ", conf['DELTA'])
 
 
 if __name__ == "__main__":

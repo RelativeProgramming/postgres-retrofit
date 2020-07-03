@@ -133,7 +133,7 @@ def create_M0(all_terms, present_vectors, dim, conf):
         for term in all_terms[key]:
             row_label = utils.get_label(key, term)
             term_list.append(row_label)
-            if term in present_vectors[key]:
+            if key not in conf['M0_ZERO_COLUMNS'] and term in present_vectors[key]:
                 presence_vector.append(1)
                 M0.append(present_vectors[key][term])
             else:
