@@ -1,0 +1,8 @@
+{
+  "profile_name": "energy 100",
+  "table_names": ["retro_vecs"],
+  "query": "SELECT r.id, trunc(p.energy_100g::numeric, -2)::varchar, r.vector FROM products AS p INNER JOIN {vec_table} AS r ON r.word = concat('products.energy_100g#', p.energy_100g) WHERE p.energy_100g IS NOT NULL",
+  "train-size": 1000,
+  "test-size": 2000,
+  "output_folder": "output/"
+}

@@ -1,4 +1,5 @@
 {
+  "profile_name": "sugar 2 equal buckets product names median",
   "table_names": ["retro_vecs"],
   "query": "SELECT r.id, CASE WHEN p.sugars_100g > 6.67 THEN 'more' ELSE 'less' END, r.vector FROM products AS p INNER JOIN {vec_table} AS r ON r.word = concat('products.product_name#', regexp_replace(p.product_name, '[\\.#~\\s\\xa0,\\(\\)/\\[\\]:]+', '_', 'g')) WHERE p.sugars_100g IS NOT NULL",
   "train-size": 1000,

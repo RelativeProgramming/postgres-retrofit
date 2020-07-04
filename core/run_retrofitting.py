@@ -14,12 +14,14 @@ HELP_TEXT = (
     '\tconfig_file: json file that defines the retrofitting parameters' +
     '\tdb_config_file: json file that contains the database connection information')
 
+
 def main(argc, argv):
     if argc < 3:
         print(HELP_TEXT)
         return
 
     conf = config.get_config(argv)
+
     print('Loaded config file', argv[1])
     retro_table_confs = conf['RETRO_TABLE_CONFS']
     print('Create schema graph in', conf['SCHEMA_GRAPH_PATH'], '...')

@@ -1,4 +1,5 @@
 {
+  "profile_name": "food categories",
   "table_names": ["retro_vecs"],
   "query": "SELECT r.id, p.category, r.vector FROM products AS p INNER JOIN {vec_table} AS r ON r.word = concat('products.product_name#', regexp_replace(p.product_name, '[\\.#~\\s\\xa0,\\(\\)/\\[\\]:]+', '_', 'g'))",
   "train-size": 1000,

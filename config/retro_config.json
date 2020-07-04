@@ -1,15 +1,34 @@
 {
   "WE_ORIGINAL_TABLE_NAME": "google_vecs",
-  "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+  "RETRO_TABLE_CONFS": [
+    "config/retro_vecs.config"
+  ],
   "SCHEMA_GRAPH_PATH": "output/schema.gml",
   "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
-  "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
-  "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
-  "RELATION_BLACKLIST":  [],
-  "M0_ZERO_COLUMNS": ["products.product_name"],
+  "TABLE_BLACKLIST": [
+    "google_vecs",
+    "retro_vecs",
+    "retro_vecs_norm",
+    "brands",
+    "countries",
+    "categories"
+  ],
+  "COLUMN_BLACKLIST": [
+    "products.ingredients",
+    "products.creator",
+    "products.sugars_100g",
+    "products.salt_100g",
+    "products.fat_100g",
+    "products.proteins_100g",
+    "products.carbohydrates_100g"
+  ],
+  "RELATION_BLACKLIST": [],
+  "M0_ZERO_COLUMNS": [
+    "products.product_name"
+  ],
   "OUTPUT_FOLDER": "output",
   "GROUPS_FILE_NAME": "output/groups.json",
-  "ITERATIONS": 10,
+  "ITERATIONS": 1,
   "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
   "TOKENIZATION_SETTINGS": {
     "TEXT_TOKENIZATION": "simple",
@@ -21,7 +40,7 @@
       "NORMALIZATION": true
     }
   },
-  "ALPHA": 2.0,
+  "ALPHA": 1.0,
   "BETA": 0.0,
   "GAMMA": 3.0,
   "DELTA": 0.0

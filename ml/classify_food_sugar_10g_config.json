@@ -1,4 +1,5 @@
 {
+  "profile_name": "sugar 10g",
   "table_names": ["retro_vecs"],
   "query": "SELECT r.id, trunc(p.sugars_100g::numeric, -1)::varchar, r.vector FROM products AS p INNER JOIN {vec_table} AS r ON r.word = concat('products.sugars_100g#', p.sugars_100g) WHERE p.sugars_100g IS NOT NULL",
   "train-size": 1000,
