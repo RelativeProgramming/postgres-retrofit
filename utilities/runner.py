@@ -1,5 +1,8 @@
 import sys
 import os
+sys.path.append("../")
+sys.path.append("../core")
+sys.path.append("../ml")
 import json
 from pathlib import Path
 import run_retrofitting as run_retro
@@ -64,6 +67,7 @@ def main(argc, argv):
         return
 
     runner_config = load_config(argv[1])
+    os.chdir("../")
 
     for config in runner_config["configs"]:
         retro_config = config["retro"]

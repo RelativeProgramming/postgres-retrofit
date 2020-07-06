@@ -16,16 +16,14 @@
   "COLUMN_BLACKLIST": [
     "products.ingredients",
     "products.creator",
-    "products.sugars_100g",
     "products.salt_100g",
     "products.fat_100g",
     "products.proteins_100g",
-    "products.carbohydrates_100g"
+    "products.carbohydrates_100g",
+    "products.energy_100g"
   ],
   "RELATION_BLACKLIST": [],
-  "M0_ZERO_COLUMNS": [
-    "products.product_name"
-  ],
+  "M0_ZERO_COLUMNS": [],
   "OUTPUT_FOLDER": "output",
   "GROUPS_FILE_NAME": "output/groups.json",
   "ITERATIONS": 1,
@@ -33,9 +31,9 @@
   "TOKENIZATION_SETTINGS": {
     "TEXT_TOKENIZATION": "simple",
     "NUMERIC_TOKENIZATION": {
-      "MODE": "unary-column-partial",
+      "MODE": "unary-column-centroid",
       "BUCKETS": true,
-      "NUMBER_DIMS": 200,
+      "NUMBER_DIMS": 300,
       "STANDARD_DEVIATION": 1.0,
       "NORMALIZATION": true
     }

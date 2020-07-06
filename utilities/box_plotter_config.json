@@ -1,0 +1,9 @@
+{
+  "result_path": "../results/new stuff/",
+  "title": "Sugar Median Product Names - Unary",
+  "labels": ["MinMax", "Buckets"],
+  "plots": [
+    "sugar 2 equal buckets product names median/unary minmax name+sugar/",
+    "sugar 2 equal buckets product names median/unary buckets name+sugar/"
+  ]
+}

@@ -60,7 +60,7 @@ Numeric Encodings in `config/retro_config.json`:
 | unary-gaussian          | unary encoded vector with gaussian  filter applied                                                                        | NORMALIZATION, BUCKETS, NUMBER_DIMS, STANDARD_DEVIATION |
 | unary-column-centroid   | centroid between unary encoded vector and we-vector of the column name                                                    | NORMALIZATION, BUCKETS                                  |
 | unary-column-partial    | the first NUMBER_DIMS dimensions are used for unary encoding values, the rest for we-vector values of the column name     | NORMALIZATION, BUCKETS, NUMBER_DIMS                     |
-| unary-random-dim        | same as unary-column-partial, but the used vector indexes are randomly distributed                                        | NORMALIZATION, BUCKETS, NUMBER_DIMS                     |
+| unary-random-dim        | the number encoding vector indexes are randomly distributed with the column name used as seed                             | NORMALIZATION, BUCKETS, NUMBER_DIMS                     |
 
 Additional Settings:
 * NORMALIZATION (Boolean, default: True): Vectors get normalized to length 1

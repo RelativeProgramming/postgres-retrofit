@@ -7,8 +7,8 @@ from datetime import datetime
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Dropout
-from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
+from keras.callbacks import EarlyStopping
 
 import matplotlib.pyplot as plt
 
