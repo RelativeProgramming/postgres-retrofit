@@ -1,0 +1,45 @@
+Einfluss von Delta Wert:
+*+ sugar 2 equal buckets product names median --> unary-column-partial name+sugar delta0-3
+
+Buckets vs. MinMax:
+*+ sugar 10g/1g product names --> unary name+sugar minmax/buckets delta0 it1
+
+Iterationen: 1/2/3/5/10/20
+Unary buckets, delta1 name+sugar
+-> sugar median + sugar 10g
+*+ "unary name+sugar buckets delta1 Xit"
+
+Kodierungen für eine Zahlenspalte (Name+Sugar):
+sugar median vs. sugar 10g vs. sugar 1g mit:
+*+ disabled (1)
+*+ random (2)
+*+ one-hot (3)
+*+ one-hot-gaussian (4)
+*+ unary (5)
+*+ unary-gaussian (6)
+-> Delta=1, Buckets, 10It.
+
+Kodierungen für zwei Zahlenspalten (Name+Sugar+Carbo):
+sugar median vs. sugar 10g vs. sugar 1g mit:
+*+ one-hot-column-centroid (1)
+*+ unary-column-centroid (2)
+*+ unary-column-partial (3)
+*+ unary-random-dim (4)
+-> Delta=1, Buckets, 10It.
+
+Food Categories: (delta=1, buckets, 10it) (mit/ohne andere Text-Spalten)
+* disabled only name (1) [0]
+nur mit Name+Sugar: 
+* one-hot (2)
+* one-hot-gaussian (3)
+* unary (4) [1]
+* unary-gaussian (5)
+nur mit Name+Sugar+Salt: [2]
+* one-hot-column-centroid (1)
+* unary-column-centroid (2)
+* unary-column-partial (3)
+* unary-random-dim (4)
+* nur mit Name+Sugar+Salt+Fat: unary-column-centroid [3]
+* nur mit Name+Sugar+Salt+Fat+Carbo: unary-column-centroid [4]
+* nur mit Name+Sugar+Salt+Fat+Carbo+Protein: unary-column-centroid [5]
+* mit allen Zahlwerten: unary-column-centroid [6]

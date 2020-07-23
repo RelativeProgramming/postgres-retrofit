@@ -1,9 +1,18 @@
 {
-  "result_path": "../results/new stuff/",
-  "title": "Sugar Median Product Names - Unary",
-  "labels": ["MinMax", "Buckets"],
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "regression sugar product names distinct filtered 1it",
+  "title": "Regression Test - Sugar+Names Distinct 1It",
+  "labels": ["rand" ,"un b", "un mm", "oh b", "ung b", "ung fl", "ohg fl"],
+  "y_axis": "Mean Absolute Error",
+  "fliers": true,
   "plots": [
-    "sugar 2 equal buckets product names median/unary minmax name+sugar/",
-    "sugar 2 equal buckets product names median/unary buckets name+sugar/"
+    "regression sugar product names distinct filtered/random name delta1 1it/",
+    "regression sugar product names distinct filtered/unary name+sugar buckets delta1 1it/",
+    "regression sugar product names distinct filtered/unary name+sugar minmax delta1 1it/",
+    "regression sugar product names distinct filtered/one-hot name+sugar buckets delta1 1it/",
+    "regression sugar product names distinct filtered/unary-gaussian name+sugar buckets delta1 1it/",
+    "regression sugar product names distinct filtered/unary-gaussian-fluent name+sugar minmax delta1 1it/",
+    "regression sugar product names distinct filtered/one-hot-gaussian-fluent name+sugar minmax delta1 1it/"
   ]
 }

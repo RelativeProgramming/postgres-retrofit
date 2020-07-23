@@ -1,0 +1,1 @@
+{"directed": true, "multigraph": true, "graph": {}, "nodes": [{"columns": ["product_name", "sugars_100g", "salt_100g", "fat_100g"], "types": ["string", "number", "number", "number"], "pkey": "id", "id": "products"}], "links": []}

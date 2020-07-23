@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append("../")
 import json
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 
@@ -22,16 +23,35 @@ def load_data(result_path, plots):
     return result
 
 
-def plot_graph(data, labels, title, output_filename):
+def create_output_dir(path):
+    if os.path.exists(path):
+        if os.path.isdir(path):
+            print("WARNING: Result Folder already exists")
+        else:
+            print("WARNING: Result Folder is a File")
+    else:
+        Path(path).mkdir(parents=True, exist_ok=True)
+
+
+def plot_graph(data, labels, title, y_axis, fliers, output_filename):
     fig1, ax1 = plt.subplots()
     ax1.set_title(title, fontsize=20)
-    ax1.boxplot(data)
+    if fliers:
+        ax1.boxplot(data)
+    else:
+        ax1.boxplot(data, sym="")
     plt.xticks(list(range(1, len(labels) + 1)), labels)
-    plt.ylabel('Accuracy [%]', fontsize=18)
+    plt.ylabel(y_axis, fontsize=18)
     plt.tick_params(labelsize=16)
     fig1.tight_layout()
     plt.savefig(output_filename)
     return
+
+
+def save_plotter_config(config, path):
+    f = open(path + "/box_plotter_config.json", 'w')
+    json.dump(config, f, indent=2)
+    f.close()
 
 
 def main(argc, argv):
@@ -45,7 +65,10 @@ def main(argc, argv):
     print("Loading data...")
     data = load_data(config["result_path"], config["plots"])
     print("Creating plot...")
-    plot_graph(data, config["labels"], config["title"], "./output/custom_box_plot.png")
+    create_output_dir(config["output_path"]+config["name"])
+    plot_graph(data, config["labels"], config["title"], config["y_axis"], config["fliers"],
+               config["output_path"]+config["name"]+"/plot.png")
+    save_plotter_config(config, config["output_path"]+config["name"])
     print("Finished")
 
 

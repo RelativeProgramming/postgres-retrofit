@@ -1,0 +1,26 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "regression sugar distinct 10it no fliers",
+  "title": "Regression Test - Sugar Distinct 10It",
+  "labels": [
+    "rand",
+    "un b",
+    "un mm",
+    "oh b",
+    "ung b",
+    "ung fl",
+    "ohg fl"
+  ],
+  "y_axis": "Mean Absolute Error",
+  "fliers": false,
+  "plots": [
+    "regression sugar distinct/random name delta1 10it/",
+    "regression sugar distinct/unary name+sugar buckets delta1 10it/",
+    "regression sugar distinct/unary name+sugar minmax delta1 10it/",
+    "regression sugar distinct/one-hot name+sugar buckets delta1 10it/",
+    "regression sugar distinct/unary-gaussian name+sugar buckets delta1 10it/",
+    "regression sugar distinct/unary-gaussian-fluent name+sugar minmax delta1 10it/",
+    "regression sugar distinct/one-hot-gaussian-fluent name+sugar minmax delta1 10it/"
+  ]
+}

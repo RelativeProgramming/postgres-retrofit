@@ -3,7 +3,7 @@
   "configs": [
     {
       "ml": ["classify_food_product_names_sugar_10g_config.json"],
-      "retro_name": "unary name+sugar alpha1 gamma3 delta1 10it",
+      "retro_name": "unary name+sugar alpha1 gamma3 delta1 10it (default)",
       "retro": {
         "WE_ORIGINAL_TABLE_NAME": "google_vecs",
         "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],

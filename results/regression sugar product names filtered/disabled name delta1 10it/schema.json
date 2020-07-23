@@ -1,0 +1,1 @@
+{"directed": true, "multigraph": true, "graph": {}, "nodes": [{"columns": "product_name", "types": "string", "pkey": "id", "id": "products"}], "links": []}

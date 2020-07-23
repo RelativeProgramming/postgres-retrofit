@@ -6,7 +6,8 @@ sys.path.append("../ml")
 import json
 from pathlib import Path
 import run_retrofitting as run_retro
-import multi_class_prediction as run_ml
+import multi_class_prediction as run_ml_classifier
+import regression_evaluation as run_ml_regression
 from shutil import copyfile
 
 
@@ -32,19 +33,32 @@ def run_retrofitting():
 
 
 def run_ml_task(ml_config_file_name):
-    run_ml.main(3, [
-        './ml/multi_class_prediction.py',
-        './config/db_config.json',
-        './ml/'+ml_config_file_name
-    ])
+    if ml_config_file_name.startswith("regress"):
+        run_ml_regression.main(3, [
+            './ml/regression_evaluation.py',
+            './config/db_config.json',
+            './ml/' + ml_config_file_name
+        ])
+    else:
+        run_ml_classifier.main(3, [
+            './ml/multi_class_prediction.py',
+            './config/db_config.json',
+            './ml/'+ml_config_file_name
+        ])
 
 
 def save_results(result_path, ml_name, retro_name):
-    files = ["./output/schema.json",
-             "./output/schema.gml",
-             "./output/food_cat_classify_plot_retro_vecs.png",
-             "./output/food_cat_classify_retro_vecs.json",
-             "./config/retro_config.json"]
+    if ml_name.startswith("regression"):
+        files = ["./output/schema.json",
+                 "./output/schema.gml",
+                 "./output/food_cat_classify_retro_vecs.json",
+                 "./config/retro_config.json"]
+    else:
+        files = ["./output/schema.json",
+                 "./output/schema.gml",
+                 "./output/food_cat_classify_plot_retro_vecs.png",
+                 "./output/food_cat_classify_retro_vecs.json",
+                 "./config/retro_config.json"]
     result_folder_path = result_path + "/" + ml_name + "/" + retro_name
     if os.path.exists(result_folder_path):
         if os.path.isdir(result_folder_path):

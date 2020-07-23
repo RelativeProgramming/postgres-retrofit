@@ -163,6 +163,10 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 vec = encoder.bucket_to_vec_one_hot(bucket_index, column_name_vector)
             elif mode == 'one-hot-gaussian':
                 vec = encoder.bucket_to_vec_one_hot_gaussian(bucket_index)
+            elif mode == 'we-regression':
+                vec = encoder.num_to_vec_we_regression(float(term))
+            elif mode == 'random':
+                vec = encoder.generate_random_vec()
 
             vec_dict[term] = dict()
             vec_dict[term]['vector'] = base64.encodebytes(vec).decode('ascii')
@@ -180,6 +184,8 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 vec = encoder.num_to_vec_unary(num, min_value, max_value, column_name_vector)
             elif mode == 'unary-gaussian':
                 vec = encoder.num_to_vec_unary_gaussian(num, min_value, max_value)
+            elif mode == 'unary-gaussian-fluent':
+                vec = encoder.num_to_vec_unary_gaussian_fluent(num, min_value, max_value)
             elif mode == 'unary-column-partial':
                 vec = encoder.num_to_vec_unary_column_partial(num, min_value, max_value, column_name_vector)
             elif mode == 'unary-random-dim':
@@ -188,6 +194,8 @@ def get_numeric_column_groups(cur, table_name, column_name, vec_dict, we_table_n
                 vec = encoder.num_to_vec_one_hot(num, min_value, max_value, column_name_vector)
             elif mode == 'one-hot-gaussian':
                 vec = encoder.num_to_vec_one_hot_gaussian(num, min_value, max_value)
+            elif mode == 'one-hot-gaussian-fluent':
+                vec = encoder.num_to_vec_one_hot_gaussian_fluent(num, min_value, max_value)
             elif mode == 'we-regression':
                 vec = encoder.num_to_vec_we_regression(num)
             elif mode == 'random':

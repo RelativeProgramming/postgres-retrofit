@@ -1,0 +1,595 @@
+{
+  "result_path": "../results/new stuff",
+  "configs": [
+    {
+      "ml": ["classify_food_product_names_sugar_median_config.json"],
+      "retro_name": "unary-column-partial name+sugar delta2 10it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 10,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary-column-partial",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 200,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 2.0
+      }
+    },
+    {
+      "ml": ["classify_food_product_names_sugar_median_config.json"],
+      "retro_name": "unary-column-partial name+sugar delta1.5 10it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 10,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary-column-partial",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 200,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.5
+      }
+    },
+    {
+      "ml": ["classify_food_product_names_sugar_median_config.json"],
+      "retro_name": "unary-column-partial name+sugar delta2.5 10it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 10,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary-column-partial",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 200,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 2.5
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_1g_config.json",
+        "classify_food_product_names_sugar_10g_config.json"
+      ],
+      "retro_name": "unary name+sugar buckets delta0 1it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 1,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 0.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_1g_config.json",
+        "classify_food_product_names_sugar_10g_config.json"
+      ],
+      "retro_name": "unary name+sugar minmax delta0 1it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 1,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary",
+            "BUCKETS": false,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 0.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "unary name+sugar buckets delta1 1it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 1,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "unary name+sugar buckets delta1 2it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 2,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "unary name+sugar buckets delta1 3it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 3,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "unary name+sugar buckets delta1 5it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 5,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "unary name+sugar buckets delta1 10it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 10,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "unary name+sugar buckets delta1 20it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 20,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_1g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "disabled name+sugar delta1 10it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 10,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "disabled",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_1g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "random name+sugar delta1 10it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 10,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "random",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_1g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "one-hot name+sugar buckets delta1 10it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 10,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "one-hot",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_1g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "one-hot-gaussian name+sugar buckets delta1 10it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 10,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "one-hot-gaussian",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_1g_config.json"
+      ],
+      "retro_name": "unary name+sugar buckets delta1 10it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 10,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    },
+    {
+      "ml": [
+        "classify_food_product_names_sugar_10g_config.json",
+        "classify_food_product_names_sugar_1g_config.json",
+        "classify_food_product_names_sugar_median_config.json"
+      ],
+      "retro_name": "unary-gaussian name+sugar buckets delta1 10it",
+      "retro": {
+        "WE_ORIGINAL_TABLE_NAME": "google_vecs",
+        "RETRO_TABLE_CONFS": ["config/retro_vecs.config"],
+        "SCHEMA_GRAPH_PATH": "output/schema.gml",
+        "SCHEMA_JSON_GRAPH_PATH": "output/schema.json",
+        "TABLE_BLACKLIST": ["google_vecs", "retro_vecs", "retro_vecs_norm", "brands", "countries", "categories"],
+        "COLUMN_BLACKLIST": ["products.ingredients", "products.creator", "products.energy_100g", "products.salt_100g", "products.fat_100g", "products.proteins_100g", "products.carbohydrates_100g"],
+        "RELATION_BLACKLIST":  [],
+        "M0_ZERO_COLUMNS": [],
+        "OUTPUT_FOLDER": "output",
+        "GROUPS_FILE_NAME": "output/groups.json",
+        "ITERATIONS": 10,
+        "RETRO_VECS_FILE_NAME": "output/retrofitted_vectors.wv",
+        "TOKENIZATION_SETTINGS": {
+          "TEXT_TOKENIZATION": "simple",
+          "NUMERIC_TOKENIZATION": {
+            "MODE": "unary-gaussian",
+            "BUCKETS": true,
+            "NUMBER_DIMS": 300,
+            "STANDARD_DEVIATION": 1.0,
+            "NORMALIZATION": true
+          }
+        },
+        "ALPHA": 1.0,
+        "BETA": 0.0,
+        "GAMMA": 3.0,
+        "DELTA": 1.0
+      }
+    }
+  ]
+}

@@ -14,18 +14,33 @@ from keras import regularizers
 # from sklearn import decomposition
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-sys.path.insert(0, '../core/')
+sys.path.insert(0, 'core/')
 
 import db_connection as db_con
 import eval_utils as utils
+import json
 
 MODEL_SAVE_PATH = '/tmp/best_model'
+OUTPUT_NAME = 'food_cat_classify_'
 
 VEC_TABLE_TEMPL = '{vec_table}'
 VEC_TABLE1_TEMPL = '{vec_table1}'
 VEC_TABLE2_TEMPL = '{vec_table2}'
 
-ITERATIONS = 10
+ITERATIONS = 20
+
+
+def load_config(file_name):
+    f = open(file_name, 'r')
+    config = json.load(f)
+    f.close()
+    return config
+
+
+def output_result(result, filename):
+    f = open(filename, 'w')
+    json.dump(result, f)
+    return
 
 
 def construct_data_list(query_result):
@@ -46,7 +61,7 @@ def construct_data_list(query_result):
             combined = np.array(
                 [v1 / np.linalg.norm(v1), v2 / np.linalg.norm(v2)]).flatten()
             id_lookup[elem[0]] = (value, combined / np.linalg.norm(combined))
-    print(count)
+    print("Data Entries: ", count)
     return id_lookup
 
 
@@ -88,7 +103,6 @@ def classify(train_data, test_data):
     backup_model_name = MODEL_SAVE_PATH + utils.create_timestamp() + '.weights'
 
     model = Sequential()
-    print(x.shape)
     # The Input Layer :
     model.add(Dense(300, kernel_initializer='normal',
                     input_dim=x.shape[1], activation='relu'))
@@ -120,20 +134,21 @@ def classify(train_data, test_data):
 
 
 def main(argc, argv):
-    # Arguments: db_config_file,
-    if argc < 5:
+    # Arguments: db_config_file, regression_config_file
+    if argc < 3:
         print('Not enough arguments')
         return
     db_config_file = argv[1]
-    query = argv[2]  # query that returns tuple of relations which are present
-    train_data_size = int(argv[3])
     db_config = db_con.get_db_config(db_config_file)
     con, cur = db_con.create_connection(db_config)
-    table_names = []
-    table_names.append(argv[4])
-    if argc == 6:
-        table_names.append(argv[5])
-    print('get here')
+
+    ml_config_file = argv[2]
+    ml_config = load_config(ml_config_file)
+    query = ml_config["query"]
+    train_data_size = ml_config["train-size"]
+    table_names = ml_config["table_names"]
+    output_folder = ml_config["output_folder"]
+
     query = utils.get_vector_query(
         query, table_names, VEC_TABLE_TEMPL, VEC_TABLE1_TEMPL, VEC_TABLE2_TEMPL)
 
@@ -146,9 +161,14 @@ def main(argc, argv):
         test_data = input_data[int(len(input_data) * 0.9):]
         error = classify(train_data, test_data)
         errors.append(error)
-        print('error', np.mean(errors), '+/-', np.std(errors))
+        print('Error', np.mean(errors), '+/-', np.std(errors))
+        print("Errors: ", errors)
     mu = np.mean(errors)
     std = np.std(errors)
+
+    output_result(dict({"retro_vecs": {'mu': mu, 'std': std, 'scores': errors}}),
+                  output_folder + OUTPUT_NAME + "retro_vecs" + '.json')
+
     return mu, std, errors
 
 

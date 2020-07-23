@@ -1,5 +1,7 @@
 import numpy as np
 import random
+from math import *
+import scipy.stats, scipy
 from word2number import w2n
 from bisect import bisect_left
 
@@ -178,6 +180,23 @@ def num_to_vec_one_hot_gaussian(num, min_value, max_value):
         return np.zeros(300, dtype='float32')
 
 
+def num_to_vec_one_hot_gaussian_fluent(num, min_value, max_value):
+    """
+    Encodes a number to a 300-dimensional vector using a one-hot encoding with a gaussian filter
+
+    :return: vector in the form vector.tobytes()
+    """
+    if max_value >= num >= min_value:
+        value_range = max_value - min_value
+        norm_num = ((num - min_value) / value_range) * number_dims
+        vec = np.zeros(300, dtype='float32')
+        for x in range(number_dims):
+            vec[x] = gaussian(x * 0.5, norm_num * 0.5)
+        return apply_normalization(vec).tobytes()
+    else:
+        return np.zeros(300, dtype='float32')
+
+
 def bucket_to_vec_one_hot_gaussian(bucket):
     """
     Encodes a bucket index to a 300-dimensional vector using one-hot encoding with a gaussian filter
@@ -259,6 +278,25 @@ def num_to_vec_unary_gaussian(num, min_value, max_value):
         range_size = (max_value - min_value) / number_dims
         index = int((num - min_value) // range_size)
         return bucket_to_vec_unary_gaussian(min(number_dims-1, index))
+    else:
+        return np.zeros(300, dtype='float32')
+
+
+def num_to_vec_unary_gaussian_fluent(num, min_value, max_value):
+    """
+    Encodes a number to a 300-dimensional vector using a unary encoding with a gaussian filter
+
+    :return: vector in the form vector.tobytes()
+    """
+    if max_value >= num >= min_value:
+        value_range = max_value - min_value
+        norm_num = ((num - min_value) / value_range) * number_dims
+        norm_int = floor(norm_num)
+        vec = np.zeros(300, dtype='float32')
+        vec[0: norm_int+1] = 1.0
+        for x in range(norm_int+1, number_dims):
+            vec[x] = gaussian(x * 0.5, norm_num * 0.5)
+        return apply_normalization(vec).tobytes()
     else:
         return np.zeros(300, dtype='float32')
 
@@ -442,9 +480,11 @@ def needs_min_max_values(mode, buckets):
     """
     return not buckets and mode in ['one-hot',
                                     'one-hot-gaussian',
-                                    'unary']
+                                    'one-hot-gaussian-fluent',
+                                    'unary',
+                                    'unary-gaussian',
+                                    'unary-gaussian-fluent']
 
 
 def gaussian(x, mean):
-    return (1 / (standard_deviation * np.sqrt(2 * np.pi))) * \
-           np.power(np.e, -0.5 * np.square((x - mean) / standard_deviation))
+    return sqrt(2*pi) * standard_deviation * scipy.stats.norm.pdf(x, mean, standard_deviation)

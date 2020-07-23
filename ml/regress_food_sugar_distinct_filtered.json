@@ -1,0 +1,8 @@
+{
+  "profile_name": "regression sugar distinct filtered",
+  "table_names": ["retro_vecs"],
+  "query": "SELECT r.id, pr.sugars, r.vector FROM (SELECT DISTINCT ON (p.sugars_100g) p.sugars_100g as sugars, p.product_name FROM products as p WHERE p.sugars_100g IS NOT NULL AND p.sugars_100g >= 0 AND p.sugars_100g <= 100 ORDER BY sugars_100g, p.product_name) AS pr INNER JOIN {vec_table} AS r ON r.word = concat('products.sugars_100g#', pr.sugars);",
+  "train-size": 500,
+  "test-size": 1000,
+  "output_folder": "output/"
+}
