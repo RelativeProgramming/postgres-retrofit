@@ -1,18 +1,17 @@
 {
   "result_path": "./results/",
   "output_path": "./diagrams/",
-  "name": "regression sugar product names distinct filtered 1it",
-  "title": "Regression Test - Sugar+Names Distinct 1It",
-  "labels": ["rand" ,"un b", "un mm", "oh b", "ung b", "ung fl", "ohg fl"],
+  "name": "regression energy product names increasing no fliers",
+  "title": "",
+  "labels": ["-", "s", "sf", "sfc", "sfcp", "all"],
   "y_axis": "Mean Absolute Error",
-  "fliers": true,
+  "fliers": false,
   "plots": [
-    "regression sugar product names distinct filtered/random name delta1 1it/",
-    "regression sugar product names distinct filtered/unary name+sugar buckets delta1 1it/",
-    "regression sugar product names distinct filtered/unary name+sugar minmax delta1 1it/",
-    "regression sugar product names distinct filtered/one-hot name+sugar buckets delta1 1it/",
-    "regression sugar product names distinct filtered/unary-gaussian name+sugar buckets delta1 1it/",
-    "regression sugar product names distinct filtered/unary-gaussian-fluent name+sugar minmax delta1 1it/",
-    "regression sugar product names distinct filtered/one-hot-gaussian-fluent name+sugar minmax delta1 1it/"
+    "regression energy product names distinct filtered/disabled name delta1 10it/",
+    "regression energy product names distinct filtered/unary-random-dim name+sugar delta1 10it/",
+    "regression energy product names distinct filtered/unary-random-dim name+sugar+fat delta1 10it/",
+    "regression energy product names distinct filtered/unary-random-dim name+sugar+fat+carbo delta1 10it/",
+    "regression energy product names distinct filtered/unary-random-dim name+sugar+fat+carbo+prot delta1 10it/",
+    "regression energy product names distinct filtered/unary-random-dim all delta1 10it/"
   ]
 }

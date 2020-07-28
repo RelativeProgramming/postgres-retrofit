@@ -1,0 +1,22 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "categories basic text+sugar",
+  "title": "",
+  "labels": [
+    "-",
+    "oh",
+    "oh-g",
+    "un",
+    "un-g"
+  ],
+  "y_axis": "Accuracy",
+  "fliers": true,
+  "plots": [
+    "food categories/disabled name+text delta1 10it/",
+    "food categories/one-hot name+text+sugar delta1 10it/",
+    "food categories/one-hot-gaussian name+text+sugar delta1 10it/",
+    "food categories/unary name+text+sugar delta1 10it/",
+    "food categories/unary-gaussian name+text+sugar delta1 10it/"
+  ]
+}

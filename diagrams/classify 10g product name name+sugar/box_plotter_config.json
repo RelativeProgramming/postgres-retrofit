@@ -1,0 +1,24 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "classify 10g product name name+sugar",
+  "title": "",
+  "labels": [
+    "-",
+    "rand",
+    "oh",
+    "oh-g",
+    "un",
+    "un-g"
+  ],
+  "y_axis": "Accuracy",
+  "fliers": true,
+  "plots": [
+    "sugar 10g product names/disabled name+sugar delta1 10it/",
+    "sugar 10g product names/random name+sugar delta1 10it/",
+    "sugar 10g product names/one-hot name+sugar buckets delta1 10it/",
+    "sugar 10g product names/one-hot-gaussian name+sugar buckets delta1 10it/",
+    "sugar 10g product names/unary name+sugar buckets delta1 10it/",
+    "sugar 10g product names/unary-gaussian name+sugar buckets delta1 10it/"
+  ]
+}

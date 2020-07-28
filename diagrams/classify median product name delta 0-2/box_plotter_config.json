@@ -1,0 +1,20 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "classify median product name delta 0-2",
+  "title": "",
+  "labels": [
+    "0",
+    "1",
+    "1.5",
+    "2"
+  ],
+  "y_axis": "Accuracy",
+  "fliers": true,
+  "plots": [
+    "sugar 2 equal buckets product names median/unary-column-partial name+sugar delta0 10it/",
+    "sugar 2 equal buckets product names median/unary-column-partial name+sugar delta1 10it/",
+    "sugar 2 equal buckets product names median/unary-column-partial name+sugar delta1.5 10it/",
+    "sugar 2 equal buckets product names median/unary-column-partial name+sugar delta2 10it/"
+  ]
+}

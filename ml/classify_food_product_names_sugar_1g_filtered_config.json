@@ -1,0 +1,8 @@
+{
+  "profile_name": "sugar 1g product names filtered",
+  "table_names": ["retro_vecs"],
+  "query": "SELECT r.id, trunc(p.sugars_100g::numeric)::varchar, r.vector FROM products AS p INNER JOIN {vec_table} AS r ON r.word = concat('products.product_name#', regexp_replace(p.product_name, '[\\.#~\\s\\xa0,\\(\\)/\\[\\]:]+', '_', 'g')) WHERE p.sugars_100g IS NOT NULL AND p.sugars_100g >= 0 AND p.sugars_100g <= 100",
+  "train-size": 1000,
+  "test-size": 2000,
+  "output_folder": "output/"
+}

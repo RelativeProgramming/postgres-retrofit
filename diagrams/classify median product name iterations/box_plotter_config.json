@@ -1,0 +1,22 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "classify median product name iterations",
+  "title": "",
+  "labels": [
+    "1",
+    "3",
+    "5",
+    "10",
+    "20"
+  ],
+  "y_axis": "Accuracy",
+  "fliers": true,
+  "plots": [
+    "sugar 2 equal buckets product names median/unary name+sugar buckets delta1 1it/",
+    "sugar 2 equal buckets product names median/unary name+sugar buckets delta1 3it/",
+    "sugar 2 equal buckets product names median/unary name+sugar buckets delta1 5it/",
+    "sugar 2 equal buckets product names median/unary name+sugar buckets delta1 10it/",
+    "sugar 2 equal buckets product names median/unary name+sugar buckets delta1 20it/"
+  ]
+}

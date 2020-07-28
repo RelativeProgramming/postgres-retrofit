@@ -1,0 +1,24 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "regression sugar product names filtered 10it",
+  "title": "",
+  "labels": [
+    "-",
+    "rand",
+    "oh",
+    "oh-g",
+    "un",
+    "un-g"
+  ],
+  "y_axis": "Mean Absolute Error",
+  "fliers": true,
+  "plots": [
+    "regression sugar product names filtered/disabled name+sugar delta1 10it/",
+    "regression sugar product names filtered/random name delta1 10it/",
+    "regression sugar product names filtered/one-hot name+sugar buckets delta1 10it/",
+    "regression sugar product names filtered/one-hot-gaussian name+sugar buckets delta1 10it/",
+    "regression sugar product names filtered/unary name+sugar buckets delta1 10it/",
+    "regression sugar product names filtered/unary-gaussian name+sugar buckets delta1 10it/"
+  ]
+}

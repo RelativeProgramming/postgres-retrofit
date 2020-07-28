@@ -1,0 +1,16 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "classification sugar product names median 10it",
+  "title": "",
+  "labels": [
+    "MM",
+    "B"
+  ],
+  "y_axis": "Accuracy",
+  "fliers": true,
+  "plots": [
+    "sugar 2 equal buckets product names median/unary minmax name+sugar delta1 10it/",
+    "sugar 2 equal buckets product names median/unary buckets name+sugar delta1 10it/"
+  ]
+}

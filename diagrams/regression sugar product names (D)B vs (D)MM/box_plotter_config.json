@@ -1,0 +1,20 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "regression sugar product names (D)B vs (D)MM",
+  "title": "",
+  "labels": [
+    "MM",
+    "B",
+    "D-MM",
+    "D-B"
+  ],
+  "y_axis": "Mean Absolute Error",
+  "fliers": true,
+  "plots": [
+    "regression sugar product names/unary name+sugar minmax delta1 10it/",
+    "regression sugar product names/unary name+sugar buckets delta1 10it/",
+    "regression sugar product names distinct/unary name+sugar minmax delta1 10it/",
+    "regression sugar product names distinct/unary name+sugar buckets delta1 10it/"
+  ]
+}

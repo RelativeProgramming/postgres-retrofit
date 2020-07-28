@@ -1,0 +1,24 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "classify energy product names increasing",
+  "title": "",
+  "labels": [
+    "-",
+    "s",
+    "sf",
+    "sfc",
+    "sfcp",
+    "all"
+  ],
+  "y_axis": "Accuracy",
+  "fliers": true,
+  "plots": [
+    "energy 100 product names distinct filtered/disabled name delta1 10it/",
+    "energy 100 product names distinct filtered/unary-random-dim name+sugar delta1 10it/",
+    "energy 100 product names distinct filtered/unary-random-dim name+sugar+fat delta1 10it/",
+    "energy 100 product names distinct filtered/unary-random-dim name+sugar+fat+carbo delta1 10it/",
+    "energy 100 product names distinct filtered/unary-random-dim name+sugar+fat+carbo+prot delta1 10it/",
+    "energy 100 product names distinct filtered/unary-random-dim all delta1 10it/"
+  ]
+}

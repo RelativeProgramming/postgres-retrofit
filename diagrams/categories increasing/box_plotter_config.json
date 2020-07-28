@@ -1,0 +1,26 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "categories increasing",
+  "title": "",
+  "labels": [
+    "-",
+    "s",
+    "ss",
+    "ssf",
+    "ssfc",
+    "ssfcp",
+    "all"
+  ],
+  "y_axis": "Accuracy",
+  "fliers": true,
+  "plots": [
+    "food categories/disabled name delta1 10it/",
+    "food categories/unary name+sugar delta1 10it/",
+    "food categories/unary-column-centroid name+sugar+salt delta1 10it/",
+    "food categories/unary-column-centroid name+sugar+salt+fat delta1 10it/",
+    "food categories/unary-column-centroid name+sugar+salt+fat+carbo delta1 10it/",
+    "food categories/unary-column-centroid name+sugar+salt+fat+carbo+protein delta1 10it/",
+    "food categories/unary-column-centroid name+numeric delta1 10it/"
+  ]
+}

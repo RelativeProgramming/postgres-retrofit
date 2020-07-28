@@ -1,0 +1,22 @@
+{
+  "result_path": "./results/",
+  "output_path": "./diagrams/",
+  "name": "classify 10g product name iterations",
+  "title": "",
+  "labels": [
+    "1",
+    "3",
+    "5",
+    "10",
+    "20"
+  ],
+  "y_axis": "Accuracy",
+  "fliers": true,
+  "plots": [
+    "sugar 10g product names/unary name+sugar buckets delta1 1it/",
+    "sugar 10g product names/unary name+sugar buckets delta1 3it/",
+    "sugar 10g product names/unary name+sugar buckets delta1 5it/",
+    "sugar 10g product names/unary name+sugar buckets delta1 10it/",
+    "sugar 10g product names/unary name+sugar buckets delta1 20it/"
+  ]
+}

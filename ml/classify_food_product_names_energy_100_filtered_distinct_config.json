@@ -1,0 +1,8 @@
+{
+  "profile_name": "energy 100 product names distinct filtered",
+  "table_names": ["retro_vecs"],
+  "query": "SELECT r.id, trunc(pr.energy::numeric, -2)::varchar, r.vector FROM (SELECT DISTINCT ON (p.energy_100g) p.energy_100g as energy, p.product_name FROM products as p WHERE p.energy_100g IS NOT NULL AND p.energy_100g >= 0 AND p.sugars_100g IS NOT NULL AND p.carbohydrates_100g IS NOT NULL AND p.fat_100g IS NOT NULL AND p.proteins_100g IS NOT NULL ORDER BY energy_100g, p.product_name) AS pr INNER JOIN {vec_table} AS r ON r.word = concat('products.product_name#', regexp_replace(pr.product_name, '[\\.#~\\s\\xa0,\\(\\)/\\[\\]:]+', '_', 'g'));",
+  "train-size": 500,
+  "test-size": 1000,
+  "output_folder": "output/"
+}
